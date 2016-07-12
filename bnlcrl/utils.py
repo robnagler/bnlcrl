@@ -76,8 +76,8 @@ def defaults_file(suffix=None, defaults_file_path=None):
     except:
         pass
 
-    dat_dir = os.path.join(script_path, 'dat')
-    config_dir = os.path.join(script_path, 'json')
+    dat_dir = os.path.join(script_path, 'package_data', 'dat')
+    config_dir = os.path.join(script_path, 'package_data', 'json')
     if not defaults_file_path:
         file_name = 'defaults_{}.json'.format(suffix) if suffix else 'defaults.json'
         defaults_file = os.path.join(config_dir, file_name)
