@@ -7,6 +7,7 @@ Learn more at https://github.com/mrakitin/bnlcrl.
 Documentation: http://bnlcrl.readthedocs.org/en/latest/
 
 Travis CI: [![Build Status](https://travis-ci.org/mrakitin/bnlcrl.svg?branch=master)](https://travis-ci.org/mrakitin/bnlcrl)
+
 ReadTheDocs: [![Documentation Status](https://readthedocs.org/projects/bnlcrl/badge/?version=latest)](http://bnlcrl.readthedocs.io/en/latest/?badge=latest)
 
 ----
