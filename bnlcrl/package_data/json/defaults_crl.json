@@ -22,7 +22,7 @@
         },
         "d_ssa_focus": {
             "default": 8.1,
-            "help": "Distance from SSA??? [m]",
+            "help": "Distance from SSA [m]",
             "type": "float"
         },
         "data_file": {
