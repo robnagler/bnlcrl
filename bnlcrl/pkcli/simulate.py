@@ -12,9 +12,9 @@ from pykern.pkdebug import pkdp, pkdc
 import argh
 
 
-@argh.arg('cart_ids', nargs='*')
-@argh.arg('--lens_array', nargs='+')
-@argh.arg('--r_array', nargs='+')
+@argh.arg('cart_ids', nargs='*', type=str)
+@argh.arg('--lens-array', nargs='+', type=int)
+@argh.arg('--r-array', nargs='+', type=float)
 def default_command(
         cart_ids,
         energy,
@@ -24,12 +24,12 @@ def default_command(
         data_file='Be_delta.dat',
         dl_cart=0.03,
         dl_lens=0.002,
-        lens_array=(1, 2, 4, 8, 16),
+        lens_array=[1, 2, 4, 8, 16],
         outfile=False,
         output_format='csv',
         p0=6.2,
         quiet=False,
-        r_array=(50, 200, 500),
+        r_array=[50.0, 200.0, 500.0],
         teta0=6e-05,
         use_numpy=False,
 ):
@@ -49,7 +49,7 @@ def default_command(
         0.000372455276869,-0.0669574652539,1.04864377922,6.52,1.24962754472,1.31695746525
 
     Args:
-        cart_ids (tuple): list of cartridges ids.
+        cart_ids (list): list of cartridges ids.
         energy (float): photon energy [eV].
         beamline (str): beamline name.
         calc_delta (bool): calculate delta analytically.
@@ -57,12 +57,12 @@ def default_command(
         data_file (str): data file with delta values for the material of the CRL (e.g., Be).
         dl_cart (float): distance between centers of two neighbouring cartridges [m].
         dl_lens (float): distance between two lenses within a cartridge [m].
-        lens_array (tuple): possible number of lenses in cartridges.
+        lens_array (list): list of possible number of lenses in cartridges.
         outfile (str): output file.
         output_format (str): output file format (CSV, JSON, plain text).
         p0 (float): distance from z=50.9 m to the first lens in the most upstream cartridge at the most upstream position of the transfocator [m].
         quiet (bool): suppress output to console.
-        r_array (tuple): set of radii of available lenses in different cartridges [um].
+        r_array (list): set of radii of available lenses in different cartridges [um].
         teta0 (float): divergence of the beam before CRL [rad].
         use_numpy (bool): use NumPy for operations with matrices.
 
