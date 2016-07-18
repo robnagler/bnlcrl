@@ -11,7 +11,6 @@ import argh
 from bnlcrl.crl_simulator import CRLSimulator, DEFAULTS_FILE as DEFAULTS_FILE_CRL
 from bnlcrl.delta_finder import DeltaFinder, DEFAULTS_FILE as DEFAULTS_FILE_DELTA
 from bnlcrl.utils import convert_types, read_json
-from pykern.pkdebug import pkdp, pkdc
 
 defaults_crl = convert_types(read_json(DEFAULTS_FILE_CRL)['parameters'])
 defaults_delta = convert_types(read_json(DEFAULTS_FILE_DELTA)['parameters'])
@@ -50,6 +49,7 @@ def default_command(
         )
 
     Output::
+
         "d","d_ideal","f","p0","p1","p1_ideal"
         0.00120167289264,-0.0661303590822,1.0480597835,6.52,1.24879832711,1.31613035908
 
