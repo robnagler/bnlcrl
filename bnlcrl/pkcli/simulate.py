@@ -121,9 +121,12 @@ def find_delta(
     """Determine the Index of Refraction (delta).
 
     The index of refraction can be defined by three different methods/approaches:
-    1) Get delta for the closest energy from the saved *.dat files (see bnlcrl/package_data/dat/).
-    2) Get delta from http://henke.lbl.gov/optical_constants/getdb2.html.
-    3) Calculate delta analytically (requires `periodictable` package installed).
+
+        1) Get delta for the closest energy from the saved *.dat files (see bnlcrl/package_data/dat/).
+
+        2) Get delta from http://henke.lbl.gov/optical_constants/getdb2.html.
+
+        3) Calculate delta analytically (requires `periodictable` package installed).
 
     Args:
         energy (float): photon energy [eV].
