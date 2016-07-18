@@ -16,7 +16,10 @@ import os
 
 from bnlcrl.utils import convert_types, defaults_file, read_json
 
-DEFAULTS_FILE = defaults_file(suffix='delta')['defaults_file']
+parms = defaults_file(suffix='delta')
+DAT_DIR = parms['dat_dir']
+CONFIG_DIR = parms['config_dir']
+DEFAULTS_FILE = parms['defaults_file']
 
 
 class DeltaFinder:
@@ -44,20 +47,28 @@ class DeltaFinder:
         self.closest_energy = None
         self.content = None
         self.raw_content = None
+        self.method = None  # can be 'file', 'server', 'calculation'
+        self.output = None
 
         if self.outfile:
             self.save_to_file()
             return
 
         if not self.data_file:
+            self.method = 'server'
             self._request_from_server()
+        else:
+            self.method = 'file'
+            self.data_file = os.path.join(DAT_DIR, self.data_file)
 
         if self.calc_delta:
             if self.available_libs['periodictable']:
+                self.method = 'calculation'
                 self.calculate_delta()
                 self.delta = self.analytical_delta
+                self.closest_energy = self.energy
             else:
-                raise ValueError('periodictable library is not available. Install it if you want to use it.')
+                raise ValueError('"periodictable" library is not available. Install it if you want to use it.')
         else:
             self._find_delta()
 
@@ -73,8 +84,8 @@ class DeltaFinder:
         self.analytical_delta = 2.7e-6 * wl ** 2 * rho * z_over_a
 
     def print_info(self):
-        msg = 'Found delta={} for the closest energy={} eV.'
-        print(msg.format(self.delta, self.closest_energy))
+        msg = 'Found delta={} for the closest energy={} eV from {}.'
+        print(msg.format(self.delta, self.closest_energy, self.method))
 
     def save_to_file(self):
         self.e_min = self.default_e_min

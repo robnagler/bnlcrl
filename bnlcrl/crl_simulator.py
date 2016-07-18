@@ -59,14 +59,12 @@ class CRLSimulator:
         self._calc_y0()  # defines self.y0
 
         # Find delta (the index of refraction) from other class:
-        if self.data_file:
-            self.data_file = os.path.join(DAT_DIR, self.data_file)
         delta_obj = DeltaFinder(
             energy=self.energy,
             precise=True,
             data_file=self.data_file,
             use_numpy=self.use_numpy,
-            verbose=self.verbose,
+            verbose=False,  # self.verbose,
             calc_delta=self.calc_delta,
         )
         self.delta = delta_obj.delta

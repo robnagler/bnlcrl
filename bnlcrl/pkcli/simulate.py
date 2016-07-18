@@ -6,12 +6,15 @@ The module to perform the following operations:
 - get the Index of Refraction (`Delta`) value;
 - simulate Compound Refractive Lenses (CRL) in the approximation of thick lens.
 """
-from bnlcrl.crl_simulator import CRLSimulator, DEFAULTS_FILE
-from bnlcrl.utils import console, convert_types, read_json
-from pykern.pkdebug import pkdp, pkdc
 import argh
 
-defaults = convert_types(read_json(DEFAULTS_FILE)['parameters'])
+from bnlcrl.crl_simulator import CRLSimulator, DEFAULTS_FILE as DEFAULTS_FILE_CRL
+from bnlcrl.delta_finder import DeltaFinder, DEFAULTS_FILE as DEFAULTS_FILE_DELTA
+from bnlcrl.utils import convert_types, read_json
+from pykern.pkdebug import pkdp, pkdc
+
+defaults_crl = convert_types(read_json(DEFAULTS_FILE_CRL)['parameters'])
+defaults_delta = convert_types(read_json(DEFAULTS_FILE_DELTA)['parameters'])
 
 
 @argh.arg('cart-ids', nargs='*', type=str)
@@ -20,53 +23,53 @@ defaults = convert_types(read_json(DEFAULTS_FILE)['parameters'])
 def default_command(
         cart_ids,
         energy,
-        beamline=defaults['beamline']['default'],  # 'smi',
-        calc_delta=defaults['calc_delta']['default'],  # False,
-        d_ssa_focus=defaults['d_ssa_focus']['default'],  # 8.1,
-        data_file=defaults['data_file']['default'],  # 'Be_delta.dat',
-        dl_cart=defaults['dl_cart']['default'],  # 0.03,
-        dl_lens=defaults['dl_lens']['default'],  # 0.002,
-        lens_array=defaults['lens_array']['default'],  # [1, 2, 4, 8, 16],
-        outfile=defaults['outfile']['default'],  # False,
-        output_format=defaults['output_format']['default'],  # 'csv',
-        p0=defaults['p0']['default'],  # 6.2,
-        verbose=defaults['verbose']['default'],  # False,
-        r_array=defaults['r_array']['default'],  # [50.0, 200.0, 500.0],
-        teta0=defaults['teta0']['default'],  # 6e-05,
-        use_numpy=defaults['use_numpy']['default'],  # False,
+        beamline=defaults_crl['beamline']['default'],  # 'smi',
+        calc_delta=defaults_crl['calc_delta']['default'],  # False,
+        d_ssa_focus=defaults_crl['d_ssa_focus']['default'],  # 8.1,
+        data_file=defaults_crl['data_file']['default'],  # 'Be_delta.dat',
+        dl_cart=defaults_crl['dl_cart']['default'],  # 0.03,
+        dl_lens=defaults_crl['dl_lens']['default'],  # 0.002,
+        lens_array=defaults_crl['lens_array']['default'],  # [1, 2, 4, 8, 16],
+        outfile=defaults_crl['outfile']['default'],  # False,
+        output_format=defaults_crl['output_format']['default'],  # 'csv',
+        p0=defaults_crl['p0']['default'],  # 6.2,
+        verbose=defaults_crl['verbose']['default'],  # False,
+        r_array=defaults_crl['r_array']['default'],  # [50.0, 200.0, 500.0],
+        teta0=defaults_crl['teta0']['default'],  # 6e-05,
+        use_numpy=defaults_crl['use_numpy']['default'],  # False,
 ):
     """Runner of the CRL simulator.
 
     Example::
 
         d = default_command(
-            cart_ids=(2, 4, 6, 7, 8),
+            cart_ids=['2', '4', '6', '7', '8'],
             energy=21500,
-            p0=6.52
+            p0=6.52,
+            verbose=True
         )
 
     Output::
-
         "d","d_ideal","f","p0","p1","p1_ideal"
-        0.000372455276869,-0.0669574652539,1.04864377922,6.52,1.24962754472,1.31695746525
+        0.00120167289264,-0.0661303590822,1.0480597835,6.52,1.24879832711,1.31613035908
 
     Args:
         cart_ids (list): list of cartridges ids.
         energy (float): photon energy [eV].
         beamline (str): beamline name.
-        calc_delta (bool): calculate delta analytically.
+        calc_delta (bool): a flag to calculate delta analytically.
         d_ssa_focus (float): distance from secondary source aperture (SSA) [m].
-        data_file (str): data file with delta values for the material of the CRL (e.g., Be).
+        data_file (str): a *.dat data file in bnlcrl/package_data/dat/ directory with delta values for the material of the CRL (e.g., Be).
         dl_cart (float): distance between centers of two neighbouring cartridges [m].
         dl_lens (float): distance between two lenses within a cartridge [m].
         lens_array (list): list of possible number of lenses in cartridges.
         outfile (str): output file.
         output_format (str): output file format (CSV, JSON, plain text).
         p0 (float): distance from z=50.9 m to the first lens in the most upstream cartridge at the most upstream position of the transfocator [m].
-        verbose (bool): print output to console.
         r_array (list): set of radii of available lenses in different cartridges [um].
         teta0 (float): divergence of the beam before CRL [rad].
-        use_numpy (bool): use NumPy for operations with matrices.
+        use_numpy (bool): a flag to use NumPy for operations with matrices.
+        verbose (bool): a flag to print output to console.
 
     Returns:
         dict: dictionary with the resulted values of CRL parameters.
@@ -97,4 +100,63 @@ def default_command(
         'p0': crl.p0,
         'p1': crl.p1,
         'p1_ideal': crl.p1_ideal,
+    }
+
+
+@argh.arg('energy', type=float)
+def find_delta(
+        energy,
+        calc_delta=defaults_delta['calc_delta']['default'],
+        data_file=defaults_delta['data_file']['default'],
+        e_max=defaults_delta['e_max']['default'],
+        e_min=defaults_delta['e_min']['default'],
+        e_step=defaults_delta['e_step']['default'],
+        formula=defaults_delta['formula']['default'],
+        n_points=defaults_delta['n_points']['default'],
+        outfile=defaults_delta['outfile']['default'],
+        precise=defaults_delta['precise']['default'],
+        use_numpy=defaults_delta['use_numpy']['default'],
+        verbose=defaults_delta['verbose']['default'],
+):
+    """Determine the Index of Refraction (delta).
+
+    The index of refraction can be defined by three different methods/approaches:
+    1) Get delta for the closest energy from the saved *.dat files (see bnlcrl/package_data/dat/).
+    2) Get delta from http://henke.lbl.gov/optical_constants/getdb2.html.
+    3) Calculate delta analytically (requires `periodictable` package installed).
+
+    Args:
+        energy (float): photon energy [eV].
+        calc_delta (bool): a flag to calculate delta analytically.
+        data_file (str): a *.dat data file in bnlcrl/package_data/dat/ directory with delta values for the material of the CRL (e.g., Be).
+        e_max (float): the highest available energy [eV].
+        e_min (float): the lowest available energy [eV].
+        e_step (float): energy step size used for saving data to a file [eV].
+        formula (str): material's formula of the interest.
+        n_points (int): number of points to get from the server.
+        outfile (str): optional output file.
+        precise (bool): a flag to find delta within the energy interval +/- 1 eV from the specified energy.
+        use_numpy (bool): a flag to use NumPy.
+        verbose (bool): a flag to print output to console.
+
+    Returns:
+        dict: dictionary with the resulted delta.
+    """
+    delta = DeltaFinder(
+        energy=energy,
+        calc_delta=calc_delta,
+        data_file=data_file,
+        e_max=e_max,
+        e_min=e_min,
+        e_step=e_step,
+        formula=formula,
+        n_points=n_points,
+        outfile=outfile,
+        precise=precise,
+        use_numpy=use_numpy,
+        verbose=verbose,
+    )
+    return {
+        'delta': delta.delta,
+        'closest_energy': delta.closest_energy,
     }

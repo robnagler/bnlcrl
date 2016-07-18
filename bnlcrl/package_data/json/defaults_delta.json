@@ -7,12 +7,12 @@
     "parameters": {
         "calc_delta": {
             "default": false,
-            "help": "calculate delta analytically",
+            "help": "a flag to calculate delta analytically",
             "type": "bool"
         },
         "data_file": {
             "default": "",
-            "help": "use information from a saved file",
+            "help": "a *.dat data file in bnlcrl/package_data/dat/ directory with delta values for the material of the CRL (e.g., Be)",
             "type": "str"
         },
         "e_max": {
@@ -47,12 +47,12 @@
         },
         "outfile": {
             "default": "",
-            "help": "output file",
+            "help": "optional output file",
             "type": "str"
         },
         "precise": {
             "default": false,
-            "help": "find delta within the energy interval +/- 1 eV from the specified energy",
+            "help": "a flag to find delta within the energy interval +/- 1 eV from the specified energy",
             "type": "bool"
         },
         "use_numpy": {

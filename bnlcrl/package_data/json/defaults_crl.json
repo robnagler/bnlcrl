@@ -8,7 +8,7 @@
         },
         "calc_delta": {
             "default": false,
-            "help": "calculate delta analytically",
+            "help": "a flag to calculate delta analytically",
             "type": "bool"
         },
         "cart_ids": {
@@ -86,12 +86,12 @@
         },
         "use_numpy": {
             "default": false,
-            "help": "use NumPy for operations with matrices",
+            "help": "a flag to use NumPy for operations with matrices",
             "type": "bool"
         },
         "verbose": {
             "default": false,
-            "help": "print output to console",
+            "help": "a flag to print output to console",
             "type": "bool"
         }
     }
