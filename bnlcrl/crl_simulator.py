@@ -50,7 +50,8 @@ class CRLSimulator:
         self.read_config_file()  # defines self.config_file and self.transfocator_config
         self._get_available_ids()  # defines self.available_ids
         if not self._check_ids():
-            self.print_result()
+            if self.verbose:
+                self.print_result()
             return
 
         # Initialize non-input variables using methods:
@@ -65,7 +66,7 @@ class CRLSimulator:
             precise=True,
             data_file=self.data_file,
             use_numpy=self.use_numpy,
-            quiet=self.quiet,
+            verbose=self.verbose,
             calc_delta=self.calc_delta,
         )
         self.delta = delta_obj.delta
@@ -78,7 +79,7 @@ class CRLSimulator:
         self.d = self.calc_delta_focus(self.p1)
         self.d_ideal = self.calc_delta_focus(self.p1_ideal)
 
-        if not self.quiet:
+        if self.verbose:
             self.print_result()
 
     def calc_delta_focus(self, p):

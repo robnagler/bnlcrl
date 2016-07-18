@@ -61,7 +61,7 @@ class DeltaFinder:
         else:
             self._find_delta()
 
-        if not self.quiet:
+        if self.verbose:
             self.print_info()
 
     def calculate_delta(self):

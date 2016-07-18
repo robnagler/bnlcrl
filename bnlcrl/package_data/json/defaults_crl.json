@@ -4,20 +4,17 @@
         "beamline": {
             "default": "smi",
             "help": "beamline name",
-            "short_argument": "b",
             "type": "str"
         },
         "calc_delta": {
             "default": false,
             "help": "calculate delta analytically",
-            "short_argument": "a",
             "type": "bool"
         },
         "cart_ids": {
             "default": null,
             "element_type": "str",
             "help": "cartridges ids",
-            "short_argument": "c",
             "type": "list"
         },
         "d_ssa_focus": {
@@ -28,7 +25,6 @@
         "data_file": {
             "default": "Be_delta.dat",
             "help": "data file with delta values for the material of the CRL (e.g., Be)",
-            "short_argument": "d",
             "type": "str"
         },
         "dl_cart": {
@@ -44,7 +40,6 @@
         "energy": {
             "default": 24000.0,
             "help": "photon energy [eV]",
-            "short_argument": "e",
             "type": "float"
         },
         "lens_array": {
@@ -55,33 +50,24 @@
                 8,
                 16
             ],
-            "element_type": "float",
+            "element_type": "int",
             "help": "possible number of lenses in cartridges",
             "type": "tuple"
         },
         "outfile": {
             "default": false,
             "help": "output file",
-            "short_argument": "o",
             "type": "str"
         },
         "output_format": {
             "default": "csv",
             "help": "output file format (CSV, JSON, plain text)",
-            "short_argument": "f",
             "type": "str"
         },
         "p0": {
             "default": 6.2,
             "help": "distance from z=50.9 m to the first lens in the most upstream cartridge at the most upstream position of the transfocator [m]",
-            "short_argument": "p",
             "type": "float"
-        },
-        "quiet": {
-            "default": false,
-            "help": "suppress output to console",
-            "short_argument": "q",
-            "type": "bool"
         },
         "r_array": {
             "default": [
@@ -89,20 +75,23 @@
                 200,
                 500
             ],
-            "element_type": "float",
+            "element_type": "int",
             "help": "radii of available lenses in different cartridges [um]",
             "type": "tuple"
         },
         "teta0": {
             "default": 6e-05,
             "help": "divergence of the beam before CRL [rad]",
-            "short_argument": "t",
             "type": "float"
         },
         "use_numpy": {
             "default": false,
             "help": "use NumPy for operations with matrices",
-            "short_argument": "n",
+            "type": "bool"
+        },
+        "verbose": {
+            "default": false,
+            "help": "print output to console",
             "type": "bool"
         }
     }

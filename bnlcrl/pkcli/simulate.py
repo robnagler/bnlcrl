@@ -11,27 +11,29 @@ from bnlcrl.utils import console, convert_types, read_json
 from pykern.pkdebug import pkdp, pkdc
 import argh
 
+defaults = convert_types(read_json(DEFAULTS_FILE)['parameters'])
 
-@argh.arg('cart_ids', nargs='*', type=str)
+
+@argh.arg('cart-ids', nargs='*', type=str)
 @argh.arg('--lens-array', nargs='+', type=int)
 @argh.arg('--r-array', nargs='+', type=float)
 def default_command(
         cart_ids,
         energy,
-        beamline='smi',
-        calc_delta=False,
-        d_ssa_focus=8.1,
-        data_file='Be_delta.dat',
-        dl_cart=0.03,
-        dl_lens=0.002,
-        lens_array=[1, 2, 4, 8, 16],
-        outfile=False,
-        output_format='csv',
-        p0=6.2,
-        quiet=False,
-        r_array=[50.0, 200.0, 500.0],
-        teta0=6e-05,
-        use_numpy=False,
+        beamline=defaults['beamline']['default'],  # 'smi',
+        calc_delta=defaults['calc_delta']['default'],  # False,
+        d_ssa_focus=defaults['d_ssa_focus']['default'],  # 8.1,
+        data_file=defaults['data_file']['default'],  # 'Be_delta.dat',
+        dl_cart=defaults['dl_cart']['default'],  # 0.03,
+        dl_lens=defaults['dl_lens']['default'],  # 0.002,
+        lens_array=defaults['lens_array']['default'],  # [1, 2, 4, 8, 16],
+        outfile=defaults['outfile']['default'],  # False,
+        output_format=defaults['output_format']['default'],  # 'csv',
+        p0=defaults['p0']['default'],  # 6.2,
+        verbose=defaults['verbose']['default'],  # False,
+        r_array=defaults['r_array']['default'],  # [50.0, 200.0, 500.0],
+        teta0=defaults['teta0']['default'],  # 6e-05,
+        use_numpy=defaults['use_numpy']['default'],  # False,
 ):
     """Runner of the CRL simulator.
 
@@ -61,7 +63,7 @@ def default_command(
         outfile (str): output file.
         output_format (str): output file format (CSV, JSON, plain text).
         p0 (float): distance from z=50.9 m to the first lens in the most upstream cartridge at the most upstream position of the transfocator [m].
-        quiet (bool): suppress output to console.
+        verbose (bool): print output to console.
         r_array (list): set of radii of available lenses in different cartridges [um].
         teta0 (float): divergence of the beam before CRL [rad].
         use_numpy (bool): use NumPy for operations with matrices.
@@ -70,18 +72,29 @@ def default_command(
         dict: dictionary with the resulted values of CRL parameters.
     """
 
-    '''
-    defaults = convert_types(read_json(DEFAULTS_FILE)['parameters'])
-    args = {}
-    for key in defaults.keys():
-        args[key] = defaults[key]['default']
-    args['cart_ids'] = [cart_ids]
-    args['energy'] = energy
-    CRLSimulator(**args)
-    '''
-
+    crl = CRLSimulator(
+        cart_ids=cart_ids,
+        energy=energy,
+        beamline=beamline,
+        calc_delta=calc_delta,
+        d_ssa_focus=d_ssa_focus,
+        data_file=data_file,
+        dl_cart=dl_cart,
+        dl_lens=dl_lens,
+        lens_array=lens_array,
+        outfile=outfile,
+        output_format=output_format,
+        p0=p0,
+        verbose=verbose,
+        r_array=r_array,
+        teta0=teta0,
+        use_numpy=use_numpy,
+    )
     return {
-        'cart_ids': cart_ids,
-        'energy': energy,
-        'lens_array': lens_array,
+        'd': crl.d,
+        'd_ideal': crl.d_ideal,
+        'f': crl.f,
+        'p0': crl.p0,
+        'p1': crl.p1,
+        'p1_ideal': crl.p1_ideal,
     }
