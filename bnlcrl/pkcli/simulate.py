@@ -126,7 +126,7 @@ def find_delta(
 
         2) Get delta from http://henke.lbl.gov/optical_constants/getdb2.html.
 
-        3) Calculate delta analytically (requires `periodictable` package installed).
+        3) Calculate delta analytically (requires ``periodictable`` package installed).
 
     Args:
         energy (float): photon energy [eV].
