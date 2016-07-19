@@ -8,7 +8,7 @@ verbose = False
 
 
 def test_crl_simulator1():
-    d = simulate.default_command(['2', '4', '6', '7', '8'], 21500, p0=6.52, verbose=verbose)
+    d = simulate.simulate_crl(['2', '4', '6', '7', '8'], 21500, p0=6.52, verbose=verbose)
     assert round(0.00120167289264, ndigits) == round(d['d'], ndigits)
     assert round(-0.0661303590822, ndigits) == round(d['d_ideal'], ndigits)
     assert round(1.0480597835, ndigits) == round(d['f'], ndigits)
@@ -18,7 +18,7 @@ def test_crl_simulator1():
 
 
 def test_crl_simulator1a():
-    d = simulate.default_command(['2', '4', '6', '7', '8'], 21500, p0=6.52, verbose=verbose, use_numpy=True)
+    d = simulate.simulate_crl(['2', '4', '6', '7', '8'], 21500, p0=6.52, verbose=verbose, use_numpy=True)
     assert round(0.00120167289264, ndigits) == round(d['d'], ndigits)
     assert round(-0.0661303590822, ndigits) == round(d['d_ideal'], ndigits)
     assert round(1.0480597835, ndigits) == round(d['f'], ndigits)
@@ -28,7 +28,7 @@ def test_crl_simulator1a():
 
 
 def test_crl_simulator2():
-    d = simulate.default_command([], 24000)
+    d = simulate.simulate_crl([], 24000)
     assert 0 == d['d']
     assert 0 == d['d_ideal']
     assert 0 == d['f']

@@ -19,7 +19,7 @@ defaults_delta = convert_types(read_json(DEFAULTS_FILE_DELTA)['parameters'])
 @argh.arg('cart-ids', nargs='*', type=str)
 @argh.arg('--lens-array', nargs='+', type=int)
 @argh.arg('--r-array', nargs='+', type=float)
-def default_command(
+def simulate_crl(
         cart_ids,
         energy,
         beamline=defaults_crl['beamline']['default'],  # 'smi',
