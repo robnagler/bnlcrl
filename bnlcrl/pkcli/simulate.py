@@ -107,6 +107,7 @@ def default_command(
 def find_delta(
         energy,
         calc_delta=defaults_delta['calc_delta']['default'],
+        characteristic=defaults_delta['characteristic']['default'],
         data_file=defaults_delta['data_file']['default'],
         e_max=defaults_delta['e_max']['default'],
         e_min=defaults_delta['e_min']['default'],
@@ -131,6 +132,7 @@ def find_delta(
     Args:
         energy (float): photon energy [eV].
         calc_delta (bool): a flag to calculate delta analytically.
+        characteristic (str): characteristic to be extracted ('delta' or 'atten' for attenuation length).
         data_file (str): a *.dat data file in bnlcrl/package_data/dat/ directory with delta values for the material of the CRL (e.g., Be).
         e_max (float): the highest available energy [eV].
         e_min (float): the lowest available energy [eV].
@@ -148,6 +150,7 @@ def find_delta(
     delta = DeltaFinder(
         energy=energy,
         calc_delta=calc_delta,
+        characteristic=characteristic,
         data_file=data_file,
         e_max=e_max,
         e_min=e_min,
@@ -160,6 +163,6 @@ def find_delta(
         verbose=verbose,
     )
     return {
-        'delta': delta.delta,
+        'characteristic_value': delta.characteristic_value,
         'closest_energy': delta.closest_energy,
     }

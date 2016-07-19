@@ -1,11 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Get delta (index of refraction).
-
-Several methods are supported:
-- get delta from http://henke.lbl.gov/optical_constants/getdb2.html;
-- calculate delta analytically.
+A library to get index of refraction (delta) or attenuation length.
 
 Author: Maksim Rakitin (BNL)
 2016
@@ -42,7 +38,7 @@ class DeltaFinder:
             elif not hasattr(self, key) or getattr(self, key) is None:
                 setattr(self, key, default_val['default'])
 
-        self.delta = None
+        self.characteristic_value = None
         self.analytical_delta = None
         self.closest_energy = None
         self.content = None
@@ -65,12 +61,12 @@ class DeltaFinder:
             if self.available_libs['periodictable']:
                 self.method = 'calculation'
                 self.calculate_delta()
-                self.delta = self.analytical_delta
+                self.characteristic_value = self.analytical_delta
                 self.closest_energy = self.energy
             else:
                 raise ValueError('"periodictable" library is not available. Install it if you want to use it.')
         else:
-            self._find_delta()
+            self._find_characteristic_value()
 
         if self.verbose:
             self.print_info()
@@ -84,8 +80,8 @@ class DeltaFinder:
         self.analytical_delta = 2.7e-6 * wl ** 2 * rho * z_over_a
 
     def print_info(self):
-        msg = 'Found delta={} for the closest energy={} eV from {}.'
-        print(msg.format(self.delta, self.closest_energy, self.method))
+        msg = 'Found {}={} for the closest energy={} eV from {}.'
+        print(msg.format(self.characteristic, self.characteristic_value, self.closest_energy, self.method))
 
     def save_to_file(self):
         self.e_min = self.default_e_min
@@ -132,10 +128,10 @@ class DeltaFinder:
             except:
                 self.available_libs[key] = False
 
-    def _find_delta(self):
+    def _find_characteristic_value(self):
         skiprows = 2
         energy_column = 0
-        delta_column = 1
+        characteristic_value_column = 1
         error_msg = 'Error! Use energy range from {} to {} eV.'
         if self.use_numpy and self.available_libs['numpy']:
             if self.data_file:
@@ -153,7 +149,7 @@ class DeltaFinder:
                 idx = idx_previous if abs(data[idx_previous, energy_column] - self.energy) <= abs(
                     data[idx_next, energy_column] - self.energy) else idx_next
 
-                self.delta = data[idx][delta_column]
+                self.characteristic_value = data[idx][characteristic_value_column]
                 self.closest_energy = data[idx][energy_column]
             else:
                 raise Exception('Processing with NumPy is only possible with the specified file, not content.')
@@ -168,10 +164,10 @@ class DeltaFinder:
             self.content = self.raw_content.strip().split('\n')
 
             energies = []
-            deltas = []
+            characteristic_values = []
             for i in range(skiprows, len(self.content)):
                 energies.append(float(self.content[i].split()[energy_column]))
-                deltas.append(float(self.content[i].split()[delta_column]))
+                characteristic_values.append(float(self.content[i].split()[characteristic_value_column]))
 
             self.default_e_min = energies[0]
             self.default_e_max = energies[-1]
@@ -192,7 +188,7 @@ class DeltaFinder:
             idx = idx_previous if abs(energies[idx_previous] - self.energy) <= abs(
                 energies[idx_next] - self.energy) else idx_next
 
-            self.delta = deltas[idx]
+            self.characteristic_value = characteristic_values[idx]
             self.closest_energy = energies[idx]
 
     def _get_file_content(self):
@@ -208,21 +204,33 @@ class DeltaFinder:
             e_min = self.e_min
             e_max = self.e_max
         payload = {
-            'Density': -1,
-            'Formula': self.formula,
-            'Material': 'Enter Formula',
-            'Min': e_min,
-            'Max': e_max,
-            'Npts': self.n_points,
-            'Output': 'Text File',
-            'Scan': 'Energy',
+            self.defaults[self.characteristic]['fields']['density']: -1,
+            self.defaults[self.characteristic]['fields']['formula']: self.formula,
+            self.defaults[self.characteristic]['fields']['material']: 'Enter Formula',
+            self.defaults[self.characteristic]['fields']['max']: e_max,
+            self.defaults[self.characteristic]['fields']['min']: e_min,
+            self.defaults[self.characteristic]['fields']['npts']: self.n_points,
+            self.defaults[self.characteristic]['fields']['output']: 'Text File',
+            self.defaults[self.characteristic]['fields']['scan']: 'Energy',
         }
-        r = self.requests.post('{}{}'.format(self.defaults['server'], self.defaults['post_url']), payload)
+        if self.characteristic == 'atten':
+            payload[self.defaults[self.characteristic]['fields']['fixed']] = 90.0
+            payload[self.defaults[self.characteristic]['fields']['plot']] = 'Log'
+            payload[self.defaults[self.characteristic]['fields']['output']] = 'Plot',
+
+        r = self.requests.post(
+            '{}{}'.format(self.defaults['server'], self.defaults[self.characteristic]['post_url']),
+            payload
+        )
         content = r.text
 
         # The file name should be something like '/tmp/xray2565.dat':
         try:
-            self.file_name = str(content.split('URL=')[1].split('>')[0].replace('"', ''))
+            self.file_name = str(
+                content.split('{}='.format(self.defaults[self.characteristic]['file_tag']))[1]
+                    .split('>')[0]
+                    .replace('"', '')
+            )
         except:
             raise Exception('\n\nFile name cannot be found! Server response:\n<{}>'.format(content.strip()))
 
@@ -231,5 +239,5 @@ class DeltaFinder:
             self._get_file_name()
             self._get_file_content()
         else:
-            msg = 'Cannot use online resource <{}> to get delta. Use local file instead.'
-            raise Exception(msg.format(self.defaults['server']))
+            msg = 'Cannot use online resource <{}> to get {}. Use local file instead.'
+            raise Exception(msg.format(self.defaults['server'], self.characteristic))

@@ -1,6 +1,36 @@
 {
     "defaults": {
-        "post_url": "/cgi-bin/getdb.pl",
+        "atten": {
+            "fields": {
+                "density": "Density",
+                "fixed": "Fixed",
+                "formula": "Formula",
+                "material": "Material",
+                "max": "Max",
+                "min": "Min",
+                "npts": "Npts",
+                "output": "Output",
+                "plot": "Plot",
+                "scan": "Scan",
+                "temp": "temp"
+            },
+            "file_tag": "HREF",
+            "post_url": "/cgi-bin/atten.pl"
+        },
+        "delta": {
+            "fields": {
+                "density": "Density",
+                "formula": "Formula",
+                "material": "Material",
+                "max": "Max",
+                "min": "Min",
+                "npts": "Npts",
+                "output": "Output",
+                "scan": "Scan"
+            },
+            "file_tag": "URL",
+            "post_url": "/cgi-bin/getdb.pl"
+        },
         "server": "http://henke.lbl.gov"
     },
     "description": "Get Index of Refraction from http://henke.lbl.gov/optical_constants/getdb2.html",
@@ -9,6 +39,11 @@
             "default": false,
             "help": "a flag to calculate delta analytically",
             "type": "bool"
+        },
+        "characteristic": {
+            "default": "delta",
+            "help": "characteristic to be extracted ('delta' or 'atten' for attenuation length)",
+            "type": "str"
         },
         "data_file": {
             "default": "",

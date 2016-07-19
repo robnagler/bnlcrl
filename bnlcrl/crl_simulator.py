@@ -67,7 +67,7 @@ class CRLSimulator:
             verbose=False,  # self.verbose,
             calc_delta=self.calc_delta,
         )
-        self.delta = delta_obj.delta
+        self.delta = delta_obj.characteristic_value
 
         # Perform calculations:
         self.calc_T_total()
