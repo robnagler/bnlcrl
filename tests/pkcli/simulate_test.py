@@ -43,24 +43,28 @@ def test_delta_finder1():
     d = simulate.find_delta(24000, precise=True, data_file='Be_delta.dat', verbose=verbose)
     assert 5.91145636e-07 == d['characteristic_value']
     assert 24001.0234 == d['closest_energy']
+    assert 'file' == d['method']
 
 
 def test_delta_finder1a():
     d = simulate.find_delta(24000, precise=True, data_file='Be_delta.dat', verbose=verbose, use_numpy=True)
     assert 5.91145636e-07 == d['characteristic_value']
     assert 24001.0234 == d['closest_energy']
+    assert 'file' == d['method']
 
 
 def test_delta_finder2():
-    d = simulate.find_delta(24000, precise=True, data_file='', verbose=verbose)
+    d = simulate.find_delta(24000, precise=True, verbose=verbose)
     assert 5.91196169e-07 == d['characteristic_value']
     assert 23999.998 == d['closest_energy']
+    assert 'server' == d['method']
 
 
 def test_delta_finder3():
     d = simulate.find_delta(24000, calc_delta=True, verbose=verbose)
     assert 5.908635405401086e-07 == d['characteristic_value']
     assert 24000 == d['closest_energy']
+    assert 'calculation' == d['method']
 
 
 def test_atten_finder2():

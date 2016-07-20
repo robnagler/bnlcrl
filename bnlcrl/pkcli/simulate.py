@@ -167,4 +167,5 @@ def find_delta(
         'characteristic': delta.characteristic,
         'characteristic_value': delta.characteristic_value,
         'closest_energy': delta.closest_energy,
+        'method': delta.method,
     }
