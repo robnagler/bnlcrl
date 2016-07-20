@@ -191,6 +191,8 @@ class DeltaFinder:
 
             self.characteristic_value = characteristic_values[idx]
             self.closest_energy = energies[idx]
+        if self.characteristic == 'atten':
+            self.characteristic_value *= 1e-6  # Atten Length (microns)
 
     def _get_file_content(self):
         get_url = '{}{}'.format(self.server_info['server'], self.file_name)

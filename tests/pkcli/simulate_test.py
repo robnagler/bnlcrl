@@ -69,5 +69,5 @@ def test_delta_finder3():
 
 def test_atten_finder2():
     d = simulate.find_delta(10000, precise=True, data_file='', characteristic='atten', verbose=verbose)
-    assert 9594.11 == d['characteristic_value']
+    assert 9594.11e-6 == d['characteristic_value']
     assert 10000.0 == d['closest_energy']
