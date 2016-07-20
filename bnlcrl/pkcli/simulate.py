@@ -16,6 +16,74 @@ defaults_crl = convert_types(read_json(DEFAULTS_FILE_CRL)['parameters'])
 defaults_delta = convert_types(read_json(DEFAULTS_FILE_DELTA)['parameters'])
 
 
+@argh.arg('energy', type=float)
+@argh.arg('--characteristic', choices=['delta', 'atten'])
+def find_delta(
+        energy,
+        calc_delta=defaults_delta['calc_delta']['default'],
+        characteristic=defaults_delta['characteristic']['default'],
+        data_file=defaults_delta['data_file']['default'],
+        e_max=defaults_delta['e_max']['default'],
+        e_min=defaults_delta['e_min']['default'],
+        e_step=defaults_delta['e_step']['default'],
+        formula=defaults_delta['formula']['default'],
+        n_points=defaults_delta['n_points']['default'],
+        outfile=defaults_delta['outfile']['default'],
+        precise=defaults_delta['precise']['default'],
+        use_numpy=defaults_delta['use_numpy']['default'],
+        verbose=defaults_delta['verbose']['default'],
+):
+    """Determine the Index of Refraction (delta).
+
+    The index of refraction can be defined by three different methods/approaches:
+
+        1) Get delta for the closest energy from the saved *.dat files (see bnlcrl/package_data/dat/).
+
+        2) Get delta from http://henke.lbl.gov/optical_constants/getdb2.html.
+
+        3) Calculate delta analytically (requires ``periodictable`` package installed).
+
+    Args:
+        energy (float): photon energy [eV].
+        calc_delta (bool): a flag to calculate delta analytically.
+        characteristic (str): characteristic to be extracted (index of refraction ('delta') or attenuation length ('atten')).
+        data_file (str): a *.dat data file in bnlcrl/package_data/dat/ directory with delta values for the material of the CRL (e.g., Be).
+        e_max (float): the highest available energy [eV].
+        e_min (float): the lowest available energy [eV].
+        e_step (float): energy step size used for saving data to a file [eV].
+        formula (str): material's formula of the interest.
+        n_points (int): number of points to get from the server.
+        outfile (str): optional output file.
+        precise (bool): a flag to find delta within the energy interval +/- 1 eV from the specified energy.
+        use_numpy (bool): a flag to use NumPy.
+        verbose (bool): a flag to print output to console.
+
+    Returns:
+        dict: dictionary with the resulted delta.
+    """
+    delta = DeltaFinder(
+        energy=energy,
+        calc_delta=calc_delta,
+        characteristic=characteristic,
+        data_file=data_file,
+        e_max=e_max,
+        e_min=e_min,
+        e_step=e_step,
+        formula=formula,
+        n_points=n_points,
+        outfile=outfile,
+        precise=precise,
+        use_numpy=use_numpy,
+        verbose=verbose,
+    )
+    return {
+        'characteristic': delta.characteristic,
+        'characteristic_value': delta.characteristic_value,
+        'closest_energy': delta.closest_energy,
+        'method': delta.method,
+    }
+
+
 @argh.arg('cart-ids', nargs='*', type=str)
 @argh.arg('energy', type=float)
 @argh.arg('--lens-array', nargs='+', type=int)
@@ -100,72 +168,4 @@ def simulate_crl(
         'p0': crl.p0,
         'p1': crl.p1,
         'p1_ideal': crl.p1_ideal,
-    }
-
-
-@argh.arg('energy', type=float)
-@argh.arg('--characteristic', choices=['delta', 'atten'])
-def find_delta(
-        energy,
-        calc_delta=defaults_delta['calc_delta']['default'],
-        characteristic=defaults_delta['characteristic']['default'],
-        data_file=defaults_delta['data_file']['default'],
-        e_max=defaults_delta['e_max']['default'],
-        e_min=defaults_delta['e_min']['default'],
-        e_step=defaults_delta['e_step']['default'],
-        formula=defaults_delta['formula']['default'],
-        n_points=defaults_delta['n_points']['default'],
-        outfile=defaults_delta['outfile']['default'],
-        precise=defaults_delta['precise']['default'],
-        use_numpy=defaults_delta['use_numpy']['default'],
-        verbose=defaults_delta['verbose']['default'],
-):
-    """Determine the Index of Refraction (delta).
-
-    The index of refraction can be defined by three different methods/approaches:
-
-        1) Get delta for the closest energy from the saved *.dat files (see bnlcrl/package_data/dat/).
-
-        2) Get delta from http://henke.lbl.gov/optical_constants/getdb2.html.
-
-        3) Calculate delta analytically (requires ``periodictable`` package installed).
-
-    Args:
-        energy (float): photon energy [eV].
-        calc_delta (bool): a flag to calculate delta analytically.
-        characteristic (str): characteristic to be extracted (index of refraction ('delta') or attenuation length ('atten')).
-        data_file (str): a *.dat data file in bnlcrl/package_data/dat/ directory with delta values for the material of the CRL (e.g., Be).
-        e_max (float): the highest available energy [eV].
-        e_min (float): the lowest available energy [eV].
-        e_step (float): energy step size used for saving data to a file [eV].
-        formula (str): material's formula of the interest.
-        n_points (int): number of points to get from the server.
-        outfile (str): optional output file.
-        precise (bool): a flag to find delta within the energy interval +/- 1 eV from the specified energy.
-        use_numpy (bool): a flag to use NumPy.
-        verbose (bool): a flag to print output to console.
-
-    Returns:
-        dict: dictionary with the resulted delta.
-    """
-    delta = DeltaFinder(
-        energy=energy,
-        calc_delta=calc_delta,
-        characteristic=characteristic,
-        data_file=data_file,
-        e_max=e_max,
-        e_min=e_min,
-        e_step=e_step,
-        formula=formula,
-        n_points=n_points,
-        outfile=outfile,
-        precise=precise,
-        use_numpy=use_numpy,
-        verbose=verbose,
-    )
-    return {
-        'characteristic': delta.characteristic,
-        'characteristic_value': delta.characteristic_value,
-        'closest_energy': delta.closest_energy,
-        'method': delta.method,
     }
