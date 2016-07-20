@@ -26,7 +26,7 @@ class DeltaFinder:
         # Get input variables:
         d = read_json(DEFAULTS_FILE)
 
-        self.defaults = d['defaults']
+        self.server_info = d['server_info']
         self.parameters = convert_types(d['parameters'])
 
         self.default_e_min = self.parameters['e_min']['type'](self.parameters['e_min']['default'])
@@ -34,7 +34,7 @@ class DeltaFinder:
 
         for key, default_val in self.parameters.items():
             if key in kwargs.keys():
-                setattr(self, key, kwargs[key])
+                setattr(self, key, self.parameters[key]['type'](kwargs[key]))
             elif not hasattr(self, key) or getattr(self, key) is None:
                 setattr(self, key, default_val['default'])
 
@@ -109,10 +109,11 @@ class DeltaFinder:
             counter += 1
             self.e_min = self.e_max
 
-        print('Data from {} eV to {} eV saved to the <{}> file.'.format(
-            self.default_e_min, self.default_e_max, self.outfile))
-        print('Energy step: {} eV, number of points/chunk: {}, number of chunks {}.'.format(
-            self.e_step, self.n_points, counter))
+        if self.verbose:
+            print('Data from {} eV to {} eV saved to the <{}> file.'.format(
+                self.default_e_min, self.default_e_max, self.outfile))
+            print('Energy step: {} eV, number of points/chunk: {}, number of chunks {}.'.format(
+                self.e_step, self.n_points, counter))
 
     def _check_imports(self):
         self.available_libs = {
@@ -192,7 +193,7 @@ class DeltaFinder:
             self.closest_energy = energies[idx]
 
     def _get_file_content(self):
-        get_url = '{}{}'.format(self.defaults['server'], self.file_name)
+        get_url = '{}{}'.format(self.server_info['server'], self.file_name)
         r = self.requests.get(get_url)
         self.content = r.text
 
@@ -204,22 +205,22 @@ class DeltaFinder:
             e_min = self.e_min
             e_max = self.e_max
         payload = {
-            self.defaults[self.characteristic]['fields']['density']: -1,
-            self.defaults[self.characteristic]['fields']['formula']: self.formula,
-            self.defaults[self.characteristic]['fields']['material']: 'Enter Formula',
-            self.defaults[self.characteristic]['fields']['max']: e_max,
-            self.defaults[self.characteristic]['fields']['min']: e_min,
-            self.defaults[self.characteristic]['fields']['npts']: self.n_points,
-            self.defaults[self.characteristic]['fields']['output']: 'Text File',
-            self.defaults[self.characteristic]['fields']['scan']: 'Energy',
+            self.server_info[self.characteristic]['fields']['density']: -1,
+            self.server_info[self.characteristic]['fields']['formula']: self.formula,
+            self.server_info[self.characteristic]['fields']['material']: 'Enter Formula',
+            self.server_info[self.characteristic]['fields']['max']: e_max,
+            self.server_info[self.characteristic]['fields']['min']: e_min,
+            self.server_info[self.characteristic]['fields']['npts']: self.n_points,
+            self.server_info[self.characteristic]['fields']['output']: 'Text File',
+            self.server_info[self.characteristic]['fields']['scan']: 'Energy',
         }
         if self.characteristic == 'atten':
-            payload[self.defaults[self.characteristic]['fields']['fixed']] = 90.0
-            payload[self.defaults[self.characteristic]['fields']['plot']] = 'Log'
-            payload[self.defaults[self.characteristic]['fields']['output']] = 'Plot',
+            payload[self.server_info[self.characteristic]['fields']['fixed']] = 90.0
+            payload[self.server_info[self.characteristic]['fields']['plot']] = 'Log'
+            payload[self.server_info[self.characteristic]['fields']['output']] = 'Plot',
 
         r = self.requests.post(
-            '{}{}'.format(self.defaults['server'], self.defaults[self.characteristic]['post_url']),
+            '{}{}'.format(self.server_info['server'], self.server_info[self.characteristic]['post_url']),
             payload
         )
         content = r.text
@@ -227,7 +228,7 @@ class DeltaFinder:
         # The file name should be something like '/tmp/xray2565.dat':
         try:
             self.file_name = str(
-                content.split('{}='.format(self.defaults[self.characteristic]['file_tag']))[1]
+                content.split('{}='.format(self.server_info[self.characteristic]['file_tag']))[1]
                     .split('>')[0]
                     .replace('"', '')
             )
@@ -240,4 +241,4 @@ class DeltaFinder:
             self._get_file_content()
         else:
             msg = 'Cannot use online resource <{}> to get {}. Use local file instead.'
-            raise Exception(msg.format(self.defaults['server'], self.characteristic))
+            raise Exception(msg.format(self.server_info['server'], self.characteristic))

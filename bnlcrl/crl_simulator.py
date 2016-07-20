@@ -12,11 +12,6 @@ import os
 from bnlcrl.delta_finder import DeltaFinder
 from bnlcrl.utils import convert_types, defaults_file, read_json
 
-try:
-    import numpy as np
-except:
-    pass
-
 parms = defaults_file(suffix='crl')
 DAT_DIR = parms['dat_dir']
 CONFIG_DIR = parms['config_dir']
@@ -25,11 +20,15 @@ DEFAULTS_FILE = parms['defaults_file']
 
 class CRLSimulator:
     def __init__(self, **kwargs):
+        # Check importable libs:
+        self._check_imports()
+
         # Get input variables:
-        self.defaults = convert_types(read_json(DEFAULTS_FILE)['parameters'])
-        for key, default_val in self.defaults.items():
+        d = read_json(DEFAULTS_FILE)
+        self.parameters = convert_types(d['parameters'])
+        for key, default_val in self.parameters.items():
             if key in kwargs.keys():
-                setattr(self, key, kwargs[key])
+                setattr(self, key, self.parameters[key]['type'](kwargs[key]))
             elif not hasattr(self, key) or getattr(self, key) is None:
                 setattr(self, key, default_val['default'])
 
@@ -249,10 +248,22 @@ class CRLSimulator:
 
         return True
 
+    def _check_imports(self):
+        self.available_libs = {
+            'numpy': None,
+        }
+        for key in self.available_libs.keys():
+            try:
+                __import__(key)
+                setattr(self, key, __import__(key))
+                self.available_libs[key] = True
+            except:
+                self.available_libs[key] = False
+
     def _dot(self, A, B):
         """Multiplies matrix A by matrix B."""
-        if self.use_numpy:
-            C = np.dot(A, B)
+        if self.use_numpy and self.available_libs['numpy']:
+            C = self.numpy.dot(A, B)
         else:
             B0 = B[0]
             lenB = len(B)
@@ -295,7 +306,7 @@ class CRLSimulator:
     def _get_available_ids(self):
         self.available_ids = []
         for i in range(len(self.transfocator_config)):
-            self.available_ids.append(self.defaults['cart_ids']['element_type'](self.transfocator_config[i]['id']))
+            self.available_ids.append(self.parameters['cart_ids']['element_type'](self.transfocator_config[i]['id']))
 
     def _get_lens_config(self):
         self.lens_config = {}
@@ -325,8 +336,8 @@ class CRLSimulator:
         if len(A) != len(A[0]):
             raise Exception('Matrix is not square: {} x {}'.format(len(A), len(A[0])))
 
-        if self.use_numpy:
-            B = np.linalg.matrix_power(A, n)
+        if self.use_numpy and self.available_libs['numpy']:
+            B = self.numpy.linalg.matrix_power(A, n)
         else:
             if n > 0:
                 B = copy.deepcopy(A)

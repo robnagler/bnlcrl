@@ -1,5 +1,5 @@
 {
-    "defaults": {
+    "server_info": {
         "atten": {
             "fields": {
                 "density": "Density",
@@ -42,7 +42,7 @@
         },
         "characteristic": {
             "default": "delta",
-            "help": "characteristic to be extracted ('delta' or 'atten' for attenuation length)",
+            "help": "characteristic to be extracted (index of refraction ('delta') or attenuation length ('atten'))",
             "type": "str"
         },
         "data_file": {

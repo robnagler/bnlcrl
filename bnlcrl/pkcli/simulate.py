@@ -17,6 +17,7 @@ defaults_delta = convert_types(read_json(DEFAULTS_FILE_DELTA)['parameters'])
 
 
 @argh.arg('cart-ids', nargs='*', type=str)
+@argh.arg('energy', type=float)
 @argh.arg('--lens-array', nargs='+', type=int)
 @argh.arg('--r-array', nargs='+', type=float)
 def simulate_crl(
@@ -74,7 +75,6 @@ def simulate_crl(
     Returns:
         dict: dictionary with the resulted values of CRL parameters.
     """
-
     crl = CRLSimulator(
         cart_ids=cart_ids,
         energy=energy,
@@ -104,6 +104,7 @@ def simulate_crl(
 
 
 @argh.arg('energy', type=float)
+@argh.arg('--characteristic', choices=['delta', 'atten'])
 def find_delta(
         energy,
         calc_delta=defaults_delta['calc_delta']['default'],
@@ -132,7 +133,7 @@ def find_delta(
     Args:
         energy (float): photon energy [eV].
         calc_delta (bool): a flag to calculate delta analytically.
-        characteristic (str): characteristic to be extracted ('delta' or 'atten' for attenuation length).
+        characteristic (str): characteristic to be extracted (index of refraction ('delta') or attenuation length ('atten')).
         data_file (str): a *.dat data file in bnlcrl/package_data/dat/ directory with delta values for the material of the CRL (e.g., Be).
         e_max (float): the highest available energy [eV].
         e_min (float): the lowest available energy [eV].
@@ -163,6 +164,7 @@ def find_delta(
         verbose=verbose,
     )
     return {
+        'characteristic': delta.characteristic,
         'characteristic_value': delta.characteristic_value,
         'closest_energy': delta.closest_energy,
     }
