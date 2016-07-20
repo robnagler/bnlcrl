@@ -67,7 +67,20 @@ def test_delta_finder3():
     assert 'calculation' == d['method']
 
 
+def test_atten_finder1():
+    d = simulate.find_delta(24000, precise=True, data_file='Be_atten.dat', characteristic='atten', verbose=verbose)
+    assert 0.0312459 == d['characteristic_value']
+    assert 24003.0 == d['closest_energy']
+
+
+def test_atten_finder1a():
+    d = simulate.find_delta(24000, precise=True, data_file='Be_atten.dat', characteristic='atten', verbose=verbose,
+                            use_numpy=True)
+    assert 0.0312459 == d['characteristic_value']
+    assert 24003.0 == d['closest_energy']
+
+
 def test_atten_finder2():
-    d = simulate.find_delta(10000, precise=True, data_file='', characteristic='atten', verbose=verbose)
-    assert 9594.11e-6 == d['characteristic_value']
-    assert 10000.0 == d['closest_energy']
+    d = simulate.find_delta(24000, precise=True, characteristic='atten', verbose=verbose)
+    assert 0.0312442 == d['characteristic_value']
+    assert 24000.0 == d['closest_energy']
