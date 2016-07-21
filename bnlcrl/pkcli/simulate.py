@@ -16,6 +16,10 @@ defaults_crl = convert_types(read_json(DEFAULTS_FILE_CRL)['parameters'])
 defaults_delta = convert_types(read_json(DEFAULTS_FILE_DELTA)['parameters'])
 
 
+@argh.arg('radius', type=float)
+@argh.arg('n', type=int)
+@argh.arg('delta', type=float)
+@argh.arg('p0', type=float)
 def calc_ideal_focus(radius, n, delta, p0):
     """Calculate ideal focus for the CRL with specified parameters.
 
@@ -28,8 +32,7 @@ def calc_ideal_focus(radius, n, delta, p0):
     Returns:
         dict: dictionary with the resulted focal distance, focus position from CRL and focus position from source [m].
     """
-    crl = CRLSimulator()
-    return crl.calc_ideal_focus(
+    return CRLSimulator.calc_ideal_focus(
         radius=radius,
         n=n,
         delta=delta,
