@@ -7,6 +7,14 @@ ndigits = 10
 verbose = False
 
 
+def test_calc_ideal_focus1():
+    delta = simulate.find_delta(9000, calc_delta=True)['characteristic_value']
+    d = simulate.calc_ideal_focus(radius=1.5e-3, n=20, delta=delta, p0=20.0)
+    assert round(8.924966829362239, ndigits) == round(d['ideal_focus'], ndigits)
+    assert round(16.11727331530564, ndigits) == round(d['p1_ideal'], ndigits)
+    assert round(36.11727331530564, ndigits) == round(d['p1_ideal_from_source'], ndigits)
+
+
 def test_crl_simulator1():
     d = simulate.simulate_crl(['2', '4', '6', '7', '8'], 21500, p0=6.52, verbose=verbose)
     assert round(0.00120167289264, ndigits) == round(d['d'], ndigits)

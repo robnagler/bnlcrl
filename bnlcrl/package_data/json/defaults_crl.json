@@ -38,7 +38,7 @@
             "type": "float"
         },
         "energy": {
-            "default": 24000.0,
+            "default": null,
             "help": "photon energy [eV]",
             "type": "float"
         },
@@ -78,6 +78,11 @@
             "element_type": "int",
             "help": "radii of available lenses in different cartridges [um]",
             "type": "tuple"
+        },
+        "radii_tolerance": {
+            "default": 1e-8,
+            "help": "tolerance to compare radii [m]",
+            "type": "float"
         },
         "teta0": {
             "default": 6e-05,

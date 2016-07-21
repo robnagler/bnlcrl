@@ -41,6 +41,7 @@ class CRLSimulator:
         self.ideal_focus = None
         self.p1 = 0
         self.p1_ideal = 0
+        self.p1_ideal_from_source = 0
         self.d = 0
         self.d_ideal = 0
         self.f = 0
@@ -87,12 +88,23 @@ class CRLSimulator:
             d = None
         return d
 
+    @staticmethod
+    def calc_ideal_focus(radius, n, delta, p0):
+        ideal_focus = radius / (2. * n * delta)
+        p1_ideal = 1. / (1. / ideal_focus - 1. / p0)
+        p1_ideal_from_source = p1_ideal + p0
+        return {
+            'ideal_focus': ideal_focus,
+            'p1_ideal': p1_ideal,
+            'p1_ideal_from_source': p1_ideal_from_source,
+        }
+
     def calc_ideal_lens(self):
         self._get_radii_n()
-        tolerance = 1e-8
-        if abs(sum(self.radii) / len(self.radii) - self.radii[0]) < tolerance:
-            self.ideal_focus = self.radii[0] / (2 * self.n * self.delta)
-            self.p1_ideal = 1 / (1 / self.ideal_focus - 1 / self.p0)
+        if abs(sum(self.radii) / len(self.radii) - self.radii[0]) < self.radii_tolerance:
+            d = self.calc_ideal_focus(self.radii[0], self.n, self.delta, self.p0)
+            for k in d.keys():
+                setattr(self, k, d[k])
         else:
             print('Radii of the specified lenses ({}) are different! Cannot calculate ideal lens.'.format(self.radii))
 

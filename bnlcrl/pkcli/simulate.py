@@ -16,6 +16,27 @@ defaults_crl = convert_types(read_json(DEFAULTS_FILE_CRL)['parameters'])
 defaults_delta = convert_types(read_json(DEFAULTS_FILE_DELTA)['parameters'])
 
 
+def calc_ideal_focus(radius, n, delta, p0):
+    """Calculate ideal focus for the CRL with specified parameters.
+
+    Args:
+        radius (float): radius on tip of parabola [m].
+        n (int): number of lenses in the CRL.
+        delta (float): the index of refraction.
+        p0 (float): distance from source to the CRL [m].
+
+    Returns:
+        dict: dictionary with the resulted focal distance, focus position from CRL and focus position from source [m].
+    """
+    crl = CRLSimulator()
+    return crl.calc_ideal_focus(
+        radius=radius,
+        n=n,
+        delta=delta,
+        p0=p0
+    )
+
+
 @argh.arg('energy', type=float)
 @argh.arg('--characteristic', choices=['delta', 'atten'])
 def find_delta(
@@ -91,20 +112,20 @@ def find_delta(
 def simulate_crl(
         cart_ids,
         energy,
-        beamline=defaults_crl['beamline']['default'],  # 'smi',
-        calc_delta=defaults_crl['calc_delta']['default'],  # False,
-        d_ssa_focus=defaults_crl['d_ssa_focus']['default'],  # 8.1,
-        data_file=defaults_crl['data_file']['default'],  # 'Be_delta.dat',
-        dl_cart=defaults_crl['dl_cart']['default'],  # 0.03,
-        dl_lens=defaults_crl['dl_lens']['default'],  # 0.002,
-        lens_array=defaults_crl['lens_array']['default'],  # [1, 2, 4, 8, 16],
-        outfile=defaults_crl['outfile']['default'],  # False,
-        output_format=defaults_crl['output_format']['default'],  # 'csv',
-        p0=defaults_crl['p0']['default'],  # 6.2,
-        verbose=defaults_crl['verbose']['default'],  # False,
-        r_array=defaults_crl['r_array']['default'],  # [50.0, 200.0, 500.0],
-        teta0=defaults_crl['teta0']['default'],  # 6e-05,
-        use_numpy=defaults_crl['use_numpy']['default'],  # False,
+        beamline=defaults_crl['beamline']['default'],
+        calc_delta=defaults_crl['calc_delta']['default'],
+        d_ssa_focus=defaults_crl['d_ssa_focus']['default'],
+        data_file=defaults_crl['data_file']['default'],
+        dl_cart=defaults_crl['dl_cart']['default'],
+        dl_lens=defaults_crl['dl_lens']['default'],
+        lens_array=defaults_crl['lens_array']['default'],
+        outfile=defaults_crl['outfile']['default'],
+        output_format=defaults_crl['output_format']['default'],
+        p0=defaults_crl['p0']['default'],
+        verbose=defaults_crl['verbose']['default'],
+        r_array=defaults_crl['r_array']['default'],
+        teta0=defaults_crl['teta0']['default'],
+        use_numpy=defaults_crl['use_numpy']['default'],
 ):
     """Runner of the CRL simulator.
 
