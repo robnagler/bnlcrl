@@ -1,8 +1,36 @@
 {
     "cli_functions": {
+        "calc_ideal_focus": {
+            "class_name": "CRLSimulator.calc_ideal_focus",
+            "description_long": "",
+            "description_short": "Calculate ideal focus for the CRL with specified parameters",
+            "parameters": {
+                "delta": {
+                    "default": null,
+                    "help": "the index of refraction",
+                    "type": "float"
+                },
+                "n": {
+                    "default": null,
+                    "help": "number of lenses in the CRL",
+                    "type": "int"
+                },
+                "p0": {
+                    "default": null,
+                    "help": "distance from source to the CRL [m]",
+                    "type": "float"
+                },
+                "radius": {
+                    "default": null,
+                    "help": "radius on tip of parabola [m]",
+                    "type": "float"
+                }
+            },
+            "returns": "c"
+        },
         "simulate_crl": {
             "class_name": "CRLSimulator",
-            "description_long": "    Calculate real CRL under-/over-focusing comparing with the ideal lens.\n    Example::\n\n        d = default_command(\n            cart_ids=['2', '4', '6', '7', '8'],\n            energy=21500,\n            p0=6.52,\n            verbose=True\n        )\n\n    Output::\n\n        \"d\",\"d_ideal\",\"f\",\"p0\",\"p1\",\"p1_ideal\"\n        0.00120167289264,-0.0661303590822,1.0480597835,6.52,1.24879832711,1.31613035908",
+            "description_long": "    Calculate real CRL under-/over-focusing comparing with the ideal lens.\n\n    Example::\n\n        d = default_command(\n            cart_ids=['2', '4', '6', '7', '8'],\n            energy=21500,\n            p0=6.52,\n            verbose=True\n        )\n\n    Output::\n\n        \"d\",\"d_ideal\",\"f\",\"p0\",\"p1\",\"p1_ideal\"\n        0.00120167289264,-0.0661303590822,1.0480597835,6.52,1.24879832711,1.31613035908",
             "description_short": "Runner of the CRL simulator",
             "returns": [
                 "d",

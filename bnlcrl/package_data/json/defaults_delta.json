@@ -1,33 +1,5 @@
 {
     "cli_functions": {
-        "calc_ideal_focus": {
-            "class_name": "CRLSimulator.calc_ideal_focus",
-            "description_long": "",
-            "description_short": "Calculate ideal focus for the CRL with specified parameters",
-            "parameters": {
-                "delta": {
-                    "default": null,
-                    "help": "the index of refraction",
-                    "type": "float"
-                },
-                "n": {
-                    "default": null,
-                    "help": "number of lenses in the CRL",
-                    "type": "int"
-                },
-                "p0": {
-                    "default": null,
-                    "help": "distance from source to the CRL [m]",
-                    "type": "float"
-                },
-                "radius": {
-                    "default": null,
-                    "help": "radius on tip of parabola [m]",
-                    "type": "float"
-                }
-            },
-            "returns": "c"
-        },
         "find_delta": {
             "class_name": "DeltaFinder",
             "description_long": "        The index of refraction can be defined by three different methods/approaches:\n\n        1) Get delta for the closest energy from the saved *.dat files (see ``bnlcrl/package_data/dat/``).\n\n        2) Get delta from http://henke.lbl.gov/optical_constants/getdb2.html.\n\n        3) Calculate delta analytically (requires ``periodictable`` package installed).",

@@ -89,10 +89,20 @@ class CRLSimulator:
         return d
 
     @staticmethod
-    def calc_ideal_focus(radius, n, delta, p0):
-        ideal_focus = radius / (2. * n * delta)
-        p1_ideal = 1. / (1. / ideal_focus - 1. / p0)
-        p1_ideal_from_source = p1_ideal + p0
+    def calc_ideal_focus(**kwargs):
+        # Get input variables:
+        d = read_json(DEFAULTS_FILE)
+        parameters = convert_types(d['cli_functions']['calc_ideal_focus']['parameters'])
+        for key, default_val in parameters.items():
+            if key in kwargs.keys():
+                locals()[key] = parameters[key]['type'](kwargs[key])
+            elif key not in locals() or locals()[key] is None:
+                locals()[key] = default_val['default']
+
+        # Perform calculation:
+        ideal_focus = locals()['radius'] / (2. * locals()['n'] * locals()['delta'])
+        p1_ideal = 1. / (1. / ideal_focus - 1. / locals()['p0'])
+        p1_ideal_from_source = p1_ideal + locals()['p0']
         return {
             'ideal_focus': ideal_focus,
             'p1_ideal': p1_ideal,
@@ -102,7 +112,12 @@ class CRLSimulator:
     def calc_ideal_lens(self):
         self._get_radii_n()
         if abs(sum(self.radii) / len(self.radii) - self.radii[0]) < self.radii_tolerance:
-            d = self.calc_ideal_focus(self.radii[0], self.n, self.delta, self.p0)
+            d = self.calc_ideal_focus(
+                radius=self.radii[0],
+                n=self.n,
+                delta=self.delta,
+                p0=self.p0
+            )
             for k in d.keys():
                 setattr(self, k, d[k])
         else:
