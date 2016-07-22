@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function
 
+import pytest
 from bnlcrl.pkcli import simulate
 
 ndigits = 10
@@ -26,6 +27,12 @@ def test_calc_ideal_focus1s():
     assert round(8.924966829362239, ndigits) == round(d['ideal_focus'], ndigits)
     assert round(16.11727331530564, ndigits) == round(d['p1_ideal'], ndigits)
     assert round(36.11727331530564, ndigits) == round(d['p1_ideal_from_source'], ndigits)
+
+
+def test_calc_ideal_focus0():
+    delta = simulate.find_delta(9000, calc_delta=True)['characteristic_value']
+    with pytest.raises(AssertionError):
+        simulate.calc_ideal_focus(radius=1.5e-3, n=0, delta=delta, p0=20.0)
 
 
 def test_crl_simulator1():

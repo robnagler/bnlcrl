@@ -100,6 +100,8 @@ class CRLSimulator:
                 locals()[key] = default_val['default']
 
         # Perform calculation:
+        assert locals()['n'] > 0
+        assert locals()['delta'] != 0
         ideal_focus = locals()['radius'] / (2. * locals()['n'] * locals()['delta'])
         p1_ideal = 1. / (1. / ideal_focus - 1. / locals()['p0'])
         p1_ideal_from_source = p1_ideal + locals()['p0']
