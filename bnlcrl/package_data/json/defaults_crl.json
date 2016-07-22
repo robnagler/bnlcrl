@@ -1,5 +1,19 @@
 {
-    "description": "Calculate real CRL under-/over-focusing comparing with the ideal lens.",
+    "cli_functions": {
+        "simulate_crl": {
+            "class_name": "CRLSimulator",
+            "description_long": "    Calculate real CRL under-/over-focusing comparing with the ideal lens.\n    Example::\n\n        d = default_command(\n            cart_ids=['2', '4', '6', '7', '8'],\n            energy=21500,\n            p0=6.52,\n            verbose=True\n        )\n\n    Output::\n\n        \"d\",\"d_ideal\",\"f\",\"p0\",\"p1\",\"p1_ideal\"\n        0.00120167289264,-0.0661303590822,1.0480597835,6.52,1.24879832711,1.31613035908",
+            "description_short": "Runner of the CRL simulator",
+            "returns": [
+                "d",
+                "d_ideal",
+                "f",
+                "p0",
+                "p1",
+                "p1_ideal"
+            ]
+        }
+    },
     "parameters": {
         "beamline": {
             "default": "smi",
@@ -52,7 +66,7 @@
             ],
             "element_type": "int",
             "help": "possible number of lenses in cartridges",
-            "type": "tuple"
+            "type": "list"
         },
         "outfile": {
             "default": false,
@@ -77,10 +91,10 @@
             ],
             "element_type": "int",
             "help": "radii of available lenses in different cartridges [um]",
-            "type": "tuple"
+            "type": "list"
         },
         "radii_tolerance": {
-            "default": 1e-8,
+            "default": 1e-08,
             "help": "tolerance to compare radii [m]",
             "type": "float"
         },

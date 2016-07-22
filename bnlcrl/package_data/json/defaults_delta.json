@@ -1,39 +1,45 @@
 {
-    "server_info": {
-        "atten": {
-            "fields": {
-                "density": "Density",
-                "fixed": "Fixed",
-                "formula": "Formula",
-                "material": "Material",
-                "max": "Max",
-                "min": "Min",
-                "npts": "Npts",
-                "output": "Output",
-                "plot": "Plot",
-                "scan": "Scan",
-                "temp": "temp"
+    "cli_functions": {
+        "calc_ideal_focus": {
+            "class_name": "CRLSimulator.calc_ideal_focus",
+            "description_long": "",
+            "description_short": "Calculate ideal focus for the CRL with specified parameters",
+            "parameters": {
+                "delta": {
+                    "default": null,
+                    "help": "the index of refraction",
+                    "type": "float"
+                },
+                "n": {
+                    "default": null,
+                    "help": "number of lenses in the CRL",
+                    "type": "int"
+                },
+                "p0": {
+                    "default": null,
+                    "help": "distance from source to the CRL [m]",
+                    "type": "float"
+                },
+                "radius": {
+                    "default": null,
+                    "help": "radius on tip of parabola [m]",
+                    "type": "float"
+                }
             },
-            "file_tag": "HREF",
-            "post_url": "/cgi-bin/atten.pl"
+            "returns": "c"
         },
-        "delta": {
-            "fields": {
-                "density": "Density",
-                "formula": "Formula",
-                "material": "Material",
-                "max": "Max",
-                "min": "Min",
-                "npts": "Npts",
-                "output": "Output",
-                "scan": "Scan"
-            },
-            "file_tag": "URL",
-            "post_url": "/cgi-bin/getdb.pl"
-        },
-        "server": "http://henke.lbl.gov"
+        "find_delta": {
+            "class_name": "DeltaFinder",
+            "description_long": "        The index of refraction can be defined by three different methods/approaches:\n\n        1) Get delta for the closest energy from the saved *.dat files (see ``bnlcrl/package_data/dat/``).\n\n        2) Get delta from http://henke.lbl.gov/optical_constants/getdb2.html.\n\n        3) Calculate delta analytically (requires ``periodictable`` package installed).",
+            "description_short": "Determine the Index of Refraction (delta)",
+            "returns": [
+                "characteristic",
+                "characteristic_value",
+                "closest_energy",
+                "method"
+            ]
+        }
     },
-    "description": "Get Index of Refraction from http://henke.lbl.gov/optical_constants/getdb2.html",
     "parameters": {
         "calc_delta": {
             "default": false,
@@ -41,13 +47,17 @@
             "type": "bool"
         },
         "characteristic": {
+            "choices": {
+                "atten": "attenuation length",
+                "delta": "index of refraction"
+            },
             "default": "delta",
-            "help": "characteristic to be extracted (index of refraction ('delta') or attenuation length ('atten'))",
+            "help": "characteristic to be extracted",
             "type": "str"
         },
         "data_file": {
             "default": "",
-            "help": "a *.dat data file in bnlcrl/package_data/dat/ directory with delta values for the material of the CRL (e.g., Be)",
+            "help": "a *.dat data file in ``bnlcrl/package_data/dat/`` directory with delta values for the material of the CRL (e.g., Be)",
             "type": "str"
         },
         "e_max": {
@@ -92,13 +102,47 @@
         },
         "use_numpy": {
             "default": false,
-            "help": "use NumPy",
+            "help": "a flag to use NumPy",
             "type": "bool"
         },
         "verbose": {
             "default": false,
-            "help": "print output to console",
+            "help": "a flag to print output to console",
             "type": "bool"
         }
+    },
+    "server_info": {
+        "atten": {
+            "fields": {
+                "density": "Density",
+                "fixed": "Fixed",
+                "formula": "Formula",
+                "material": "Material",
+                "max": "Max",
+                "min": "Min",
+                "npts": "Npts",
+                "output": "Output",
+                "plot": "Plot",
+                "scan": "Scan",
+                "temp": "temp"
+            },
+            "file_tag": "HREF",
+            "post_url": "/cgi-bin/atten.pl"
+        },
+        "delta": {
+            "fields": {
+                "density": "Density",
+                "formula": "Formula",
+                "material": "Material",
+                "max": "Max",
+                "min": "Min",
+                "npts": "Npts",
+                "output": "Output",
+                "scan": "Scan"
+            },
+            "file_tag": "URL",
+            "post_url": "/cgi-bin/getdb.pl"
+        },
+        "server": "http://henke.lbl.gov"
     }
 }

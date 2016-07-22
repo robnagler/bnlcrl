@@ -1,5 +1,33 @@
 import json
 import os
+from pykern import pkjinja
+
+
+def defaults_file(suffix=None, defaults_file_path=None):
+    script_path = os.path.dirname(os.path.realpath(__file__))
+
+    # Fix for Jython:
+    try:
+        script_path = script_path.replace(
+            os.path.join(format(os.environ['HOME']), '.jython-cache/cachedir/classes'),
+            ''
+        )
+    except:
+        pass
+
+    dat_dir = os.path.join(script_path, 'package_data', 'dat')
+    config_dir = os.path.join(script_path, 'package_data', 'json')
+    if not defaults_file_path:
+        file_name = 'defaults_{}.json'.format(suffix) if suffix else 'defaults.json'
+        defaults_file = os.path.join(config_dir, file_name)
+    else:
+        defaults_file = defaults_file_path
+
+    return {
+        'dat_dir': dat_dir,
+        'config_dir': config_dir,
+        'defaults_file': defaults_file,
+    }
 
 
 def console(class_name, parameters_file):
@@ -81,29 +109,125 @@ def convert_types(input_dict):
     return input_dict
 
 
-def defaults_file(suffix=None, defaults_file_path=None):
-    script_path = os.path.dirname(os.path.realpath(__file__))
+def create_cli_function(function_name, parameters, config):
+    """The function creates the content of the CLI functions with the input from JSON config.
 
-    # Fix for Jython:
-    try:
-        script_path = script_path.replace(os.path.join(format(os.environ['HOME']), '.jython-cache/cachedir/classes'),
-                                          '')
-    except:
-        pass
+    Args:
+        function_name (str): name of the function.
+        parameters (dict): dictionary with the parameters of the arguments (default value, help info, type).
+        config (dict): dictionary with the parameters (descriptions, used class name, returns, parameters (optional)).
 
-    dat_dir = os.path.join(script_path, 'package_data', 'dat')
-    config_dir = os.path.join(script_path, 'package_data', 'json')
-    if not defaults_file_path:
-        file_name = 'defaults_{}.json'.format(suffix) if suffix else 'defaults.json'
-        defaults_file = os.path.join(config_dir, file_name)
+    Returns:
+        str: resulted function represented as a string.
+    """
+
+    # argh_decorators:
+    argh_args = ''
+    argh_kwargs = ''
+    for key in sorted(parameters.keys()):
+        if parameters[key]['default'] is None:
+            if parameters[key]['type'] in [list, tuple]:
+                argh_args += "@argh.arg('{}', nargs='*', type={})\n".format(key,
+                                                                            parameters[key]['element_type'].__name__)
+            else:
+                argh_args += "@argh.arg('{}', type={})\n".format(key, parameters[key]['type'].__name__)
+        else:
+            if parameters[key]['type'] in [list, tuple]:
+                argh_kwargs += "@argh.arg('--{}', nargs='+', type={})\n".format(key, parameters[key][
+                    'element_type'].__name__)
+        if 'choices' in parameters[key]:
+            argh_kwargs += "@argh.arg('--{}', choices=[{}])\n".format(
+                key,
+                ', '.join(["\'{}\'".format(x) for x in parameters[key]['choices'].keys()])
+            )
+    argh_decorators = '{}{}'.format(argh_args, argh_kwargs)
+
+    # function_arguments:
+    str_args = ''
+    str_kwargs = ''
+    for key in sorted(parameters.keys()):
+        a = parameters[key]['default']
+        if parameters[key]['default'] is None:
+            str_args += '    {},\n'.format(key)
+            continue
+        if parameters[key]['type'] == str:
+            a = "\'{}\'".format(parameters[key]['default'])
+        str_kwargs += '    {}={},\n'.format(key, a)
+    function_arguments = '\n{}{}'.format(str_args, str_kwargs)
+
+    # descriptions:
+    description_short = config['description_short']
+    description_long = config['description_long']
+
+    # arguments_description:
+    arguments_description = ''
+    for key in sorted(parameters.keys()):
+        format_str = '        {} ({}): {}.\n'
+        format_values = [
+            key,
+            parameters[key]['type'].__name__,
+            parameters[key]['help'],
+        ]
+        if 'choices' in parameters[key]:
+            format_str = '        {} ({}): {} ({}).\n'
+            choices_str = ''
+            comma = ', '
+            for i, choices_key in enumerate(sorted(parameters[key]['choices'].keys())):
+                if i == len(parameters[key]['choices'].keys()) - 1:
+                    comma = ''
+                choices_str += "``{}`` - {}{}".format(choices_key, parameters[key]['choices'][choices_key], comma)
+            format_values.append(choices_str)
+        arguments_description += format_str.format(*format_values)
+
+    # class_name:
+    class_name = config['class_name']
+
+    # class_arguments:
+    class_arguments = ''
+    for key in sorted(parameters.keys()):
+        class_arguments += '        {}={},\n'.format(key, key)
+
+    # return_dict
+    return_dict = ''
+    if type(config['returns']) == list:
+        for r in config['returns']:
+            return_dict += "        '{}': c.{},\n".format(r, r)
+        return_dict = '{{\n{}    }}'.format(return_dict)
     else:
-        defaults_file = defaults_file_path
+        return_dict = config['returns']
 
-    return {
-        'dat_dir': dat_dir,
-        'config_dir': config_dir,
-        'defaults_file': defaults_file,
+    v = {
+        'argh_decorators': argh_decorators,
+        'function_name': function_name,
+        'function_arguments': function_arguments,
+        'description_short': description_short,
+        'description_long': description_long,
+        'arguments_description': arguments_description,
+        'class_name': class_name,
+        'class_arguments': class_arguments,
+        'return_dict': return_dict,
     }
+    return pkjinja.render_resource('cli_function', v)
+
+
+def get_cli_functions(config):
+    """Get list of CLI functions' content with the input from JSON config.
+
+    Args:
+        config (dict): dictionary with the configuration in JSON format.
+
+    Returns:
+        list: list of functions' contents.
+    """
+    functions_list = []
+    for key in config['cli_functions'].keys():
+        if 'parameters' in config['cli_functions'][key]:
+            parameters = convert_types(config['cli_functions'][key]['parameters'])
+        else:
+            parameters = convert_types(config['parameters'])
+        content = create_cli_function(key, parameters, config['cli_functions'][key])
+        functions_list.append(content)
+    return functions_list
 
 
 def read_json(file_name):
