@@ -15,7 +15,6 @@ except ImportError:
 pykern.pksetup.setup(
     name='bnlcrl',
     author='mrakitin',
-    author_email='maxim.rakitin@google.com',
     description='CRL simulator',
     license='http://www.apache.org/licenses/LICENSE-2.0.html',
     url='https://github.com/mrakitin/bnlcrl',
