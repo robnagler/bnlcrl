@@ -103,4 +103,4 @@ This library is used on the SMI beamline at NSLS-II:
 
 License: http://www.apache.org/licenses/LICENSE-2.0.html
 
-Copyright (c) 2016 mrakitin.  All Rights Reserved.
+Copyright (c) 2016 mrakitin (BNL).  All Rights Reserved.
