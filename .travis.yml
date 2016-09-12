@@ -10,7 +10,6 @@ install:
   - pip install -r requirements.txt
 script:
   - python setup.py pkdeploy
-  - ls -laFR /home/travis/build/mrakitin/bnlcrl/
-  - py.test --cov=./
+  - coverage run setup.py test
 after_success:
 - codecov
