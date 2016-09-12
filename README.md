@@ -6,9 +6,9 @@ Learn more at https://github.com/mrakitin/bnlcrl.
 
 Documentation: http://bnlcrl.readthedocs.org/en/latest/
 
-Travis CI: [![Build Status](https://travis-ci.org/mrakitin/bnlcrl.svg?branch=master)](https://travis-ci.org/mrakitin/bnlcrl)
-
-ReadTheDocs: [![Documentation Status](https://readthedocs.org/projects/bnlcrl/badge/?version=latest)](http://bnlcrl.readthedocs.io/en/latest/?badge=latest)
+| Travis CI | ReadTheDocs | Codecov |
+|:--:|:--:|:--:|
+| [![Build Status](https://travis-ci.org/mrakitin/bnlcrl.svg?branch=master)](https://travis-ci.org/mrakitin/bnlcrl) | [![Documentation Status](https://readthedocs.org/projects/bnlcrl/badge/?version=latest)](http://bnlcrl.readthedocs.io/en/latest/?badge=latest) | [![codecov](https://codecov.io/gh/mrakitin/bnlcrl/branch/master/graph/badge.svg)](https://codecov.io/gh/mrakitin/bnlcrl) |
 
 ----
 The code is written in pure Python, tested to be working under Linux and Windows with Python 2.7/3.5 and Jython 2.7. There is no required NumPy dependency, but it still can be used for operations with matrices, etc. (see the `Usage` section below).
