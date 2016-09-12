@@ -6,9 +6,8 @@ branches:
   only:
     - master
 install:
-  - pip install -U pip setuptools tox pytest
+  - pip install -U pip setuptools tox pytest codecov pytest-cov
   - pip install -r requirements.txt
-  - pip install codecov pytest-cov
 script:
   - python setup.py pkdeploy
   - py.test --cov=./
