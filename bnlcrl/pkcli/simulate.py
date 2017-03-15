@@ -18,10 +18,10 @@ from bnlcrl.utils import get_cli_functions, read_json
 config_crl = read_json(DEFAULTS_FILE_CRL)
 functions_list = get_cli_functions(config_crl)
 for content in functions_list:
-    exec content
+    exec(content)
 
 # Delta and focus:
 config_delta = read_json(DEFAULTS_FILE_DELTA)
 functions_list = get_cli_functions(config_delta)
 for content in functions_list:
-    exec content
+    exec(content)
