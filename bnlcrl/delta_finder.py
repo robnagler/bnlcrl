@@ -9,6 +9,11 @@ Author: Maksim Rakitin (BNL)
 
 import math
 import os
+from io import StringIO  # StringIO behaves like a file object
+
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
 
 from bnlcrl.utils import convert_types, defaults_file, read_json
 
@@ -78,6 +83,29 @@ class DeltaFinder:
         z_over_a = z / mass
         wl = 2 * math.pi * 1973 / self.energy  # lambda= (2pi (hc))/E
         self.analytical_delta = 2.7e-6 * wl ** 2 * rho * z_over_a
+
+    def plot_data(self, df, elements, property, file_name='data', x_label=None, figsize=(10, 6)):
+        thickness = ', thickness={} [$\mathrm{{\mu}}$m]'.format(self.thickness) if property == 'transmission' else ''
+
+        fig = plt.figure(figsize=figsize)
+        axes = fig.add_subplot(111)
+        ax = df.plot(x_label, grid=True, ax=axes)
+        ax.set_title(r'{}: {} ({}-{} eV, {} points{})'.format(
+            property.capitalize(),
+            ', '.join(elements),
+            self.e_min,
+            self.e_max,
+            self.n_points,
+            thickness,
+        ))
+        ax.set_xlabel(x_label)
+        ax.set_ylabel('{}'.format(property.capitalize()))
+        plt.savefig('{}.png'.format(file_name))
+        if self.show_plot:
+            plt.show()
+
+    def save_to_csv(self, df, file_name='data', index=False):
+        df.to_csv('{}.csv'.format(file_name), index=index)
 
     def print_info(self):
         msg = 'Found {}={} for the closest energy={} eV from {}.'
@@ -198,8 +226,9 @@ class DeltaFinder:
         get_url = '{}{}'.format(self.server_info['server'], self.file_name)
         r = self.requests.get(get_url)
         self.content = r.text
+        return self.content
 
-    def _get_file_name(self):
+    def _get_file_name(self, formula=None):
         if self.precise:
             e_min = self.energy - 1.0
             e_max = self.energy + 1.0
@@ -208,7 +237,7 @@ class DeltaFinder:
             e_max = self.e_max
         payload = {
             self.server_info[self.characteristic]['fields']['density']: -1,
-            self.server_info[self.characteristic]['fields']['formula']: self.formula,
+            self.server_info[self.characteristic]['fields']['formula']: formula,
             self.server_info[self.characteristic]['fields']['material']: 'Enter Formula',
             self.server_info[self.characteristic]['fields']['max']: e_max,
             self.server_info[self.characteristic]['fields']['min']: e_min,
@@ -220,7 +249,10 @@ class DeltaFinder:
             payload[self.server_info[self.characteristic]['fields']['fixed']] = 90.0
             payload[self.server_info[self.characteristic]['fields']['plot']] = 'Log'
             payload[self.server_info[self.characteristic]['fields']['output']] = 'Plot',
-
+        elif self.characteristic == 'transmission':
+            payload[self.server_info[self.characteristic]['fields']['plot']] = 'Linear'
+            payload[self.server_info[self.characteristic]['fields']['output']] = 'Plot',
+            payload[self.server_info[self.characteristic]['fields']['thickness']] = self.thickness  # um
         r = self.requests.post(
             '{}{}'.format(self.server_info['server'], self.server_info[self.characteristic]['post_url']),
             payload
@@ -239,8 +271,48 @@ class DeltaFinder:
 
     def _request_from_server(self):
         if self.available_libs['requests']:
-            self._get_file_name()
-            self._get_file_content()
+            d = []
+            for f in self.formula.split(','):  # to support multiple chemical elements comma-separated list
+                self._get_file_name(formula=f)
+                r = self._get_file_content()
+                d.append(r)
+            if self.plot or self.save:
+                elements = self.formula.split(',')
+                df, columns = self._to_dataframe(d, elements)
+                if df is not None and columns is not None:
+                    file_name = '{}_{}'.format(self.formula, self.characteristic)
+                    if self.plot:
+                        self.plot_data(
+                            df=df,
+                            elements=elements,
+                            property=self.characteristic,
+                            file_name=file_name,
+                            x_label=columns[0],
+                        )
+                    if self.save:
+                        self.save_to_csv(df=df, file_name=file_name)
         else:
             msg = 'Cannot use online resource <{}> to get {}. Use local file instead.'
             raise Exception(msg.format(self.server_info['server'], self.characteristic))
+
+    def _to_dataframe(self, d, elements):
+        """Convert a list of strings, each representing the read data, to a Pandas DataFrame object.
+        
+        :param d: a list of strings, each representing the read data.
+        :param elements: Chemical elements of interest.
+        :return: a tuple of DataFrame and the parsed columns. 
+        """
+        df = None
+        columns = None
+        for i, str_data in enumerate(d):
+            element = elements[i]
+            c = StringIO(str_data)
+            title, columns = str_data.split('\n')[0:2]
+            columns = [x.strip() for x in columns.strip().split(',')]
+            columns[1] = '{} {}'.format(columns[1], element)
+            data = np.loadtxt(c, skiprows=2)
+            if df is None:
+                df = pd.DataFrame(data[:, :2], columns=columns[:2])
+            else:
+                df[columns[1]] = data[:, 1]
+        return df, columns

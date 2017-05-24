@@ -21,7 +21,8 @@
         "characteristic": {
             "choices": {
                 "atten": "attenuation length",
-                "delta": "index of refraction"
+                "delta": "index of refraction",
+                "transmission": "filter transmission"
             },
             "default": "delta",
             "help": "characteristic to be extracted",
@@ -72,6 +73,26 @@
             "help": "a flag to find delta within the energy interval +/- 1 eV from the specified energy",
             "type": "bool"
         },
+        "plot": {
+            "default": false,
+            "help": "a flag to plot the obtained data",
+            "type": "bool"
+        },
+        "save": {
+            "default": false,
+            "help": "a flag to save the obtained data",
+            "type": "bool"
+        },
+        "show_plot": {
+            "default": false,
+            "help": "a flag to show the show the plot",
+            "type": "bool"
+        },
+        "thickness": {
+            "default": 0.1,
+            "help": "thickness of the material",
+            "type": "float"
+        },
         "use_numpy": {
             "default": false,
             "help": "a flag to use NumPy",
@@ -114,6 +135,22 @@
             },
             "file_tag": "URL",
             "post_url": "/cgi-bin/getdb.pl"
+        },
+        "transmission": {
+            "fields": {
+                "density": "Density",
+                "formula": "Formula",
+                "material": "Material",
+                "max": "Max",
+                "min": "Min",
+                "npts": "Npts",
+                "output": "Output",
+                "plot": "Plot",
+                "scan": "Scan",
+                "thickness": "Thickness"
+            },
+            "file_tag": "HREF",
+            "post_url": "/cgi-bin/filter.pl"
         },
         "server": "http://henke.lbl.gov"
     }
