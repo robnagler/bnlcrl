@@ -8,6 +8,7 @@
                 "characteristic",
                 "characteristic_value",
                 "closest_energy",
+                "element",
                 "method"
             ]
         }

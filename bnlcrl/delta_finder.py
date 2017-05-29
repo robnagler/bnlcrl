@@ -52,6 +52,7 @@ class DeltaFinder:
         self.method = None  # can be 'file', 'server', 'calculation'
         self.output = None
         self.elements = self.formula.split(',')
+        self.element = self.elements[-1]
 
         if self.outfile:
             self.save_to_file()
@@ -82,7 +83,6 @@ class DeltaFinder:
             return_dict = {}
             for k in d['cli_functions']['find_delta']['returns']:
                 return_dict[k] = getattr(self, k)
-            return_dict['element'] = self.elements[-1]
             file_name = '{}.json'.format(self._output_file_name(self.elements, self.characteristic))
             with open(file_name, 'w') as f:
                 json.dump(return_dict, f)
