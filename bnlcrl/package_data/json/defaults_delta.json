@@ -83,6 +83,11 @@
             "help": "a flag to save the obtained data",
             "type": "bool"
         },
+        "save_output": {
+            "default": false,
+            "help": "a flag to save the output dictionary in JSON format",
+            "type": "bool"
+        },
         "show_plot": {
             "default": false,
             "help": "a flag to show the show the plot",

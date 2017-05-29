@@ -7,6 +7,7 @@ Author: Maksim Rakitin (BNL)
 2016
 """
 
+import json
 import math
 import os
 from io import StringIO  # StringIO behaves like a file object
@@ -50,6 +51,7 @@ class DeltaFinder:
         self.raw_content = None
         self.method = None  # can be 'file', 'server', 'calculation'
         self.output = None
+        self.elements = self.formula.split(',')
 
         if self.outfile:
             self.save_to_file()
@@ -75,6 +77,15 @@ class DeltaFinder:
 
         if self.verbose:
             self.print_info()
+
+        if self.save_output:
+            return_dict = {}
+            for k in d['cli_functions']['find_delta']['returns']:
+                return_dict[k] = getattr(self, k)
+            return_dict['element'] = self.elements[-1]
+            file_name = '{}.json'.format(self._output_file_name(self.elements, self.characteristic))
+            with open(file_name, 'w') as f:
+                json.dump(return_dict, f)
 
     def calculate_delta(self):
         rho = getattr(self.periodictable, self.formula).density
@@ -104,12 +115,12 @@ class DeltaFinder:
         if self.show_plot:
             plt.show()
 
-    def save_to_csv(self, df, file_name='data', index=False):
-        df.to_csv('{}.csv'.format(file_name), index=index)
-
     def print_info(self):
         msg = 'Found {}={} for the closest energy={} eV from {}.'
         print(msg.format(self.characteristic, self.characteristic_value, self.closest_energy, self.method))
+
+    def save_to_csv(self, df, file_name='data', index=False):
+        df.to_csv('{}.csv'.format(file_name), index=index)
 
     def save_to_file(self):
         self.e_min = self.default_e_min
@@ -222,13 +233,13 @@ class DeltaFinder:
         if self.characteristic == 'atten':
             self.characteristic_value *= 1e-6  # Atten Length (microns)
 
-    def _get_file_content(self):
+    def _get_remote_file_content(self):
         get_url = '{}{}'.format(self.server_info['server'], self.file_name)
         r = self.requests.get(get_url)
         self.content = r.text
         return self.content
 
-    def _get_file_name(self, formula=None):
+    def _get_remote_file_name(self, formula=None):
         if self.precise:
             e_min = self.energy - 1.0
             e_max = self.energy + 1.0
@@ -269,22 +280,25 @@ class DeltaFinder:
         except:
             raise Exception('\n\nFile name cannot be found! Server response:\n<{}>'.format(content.strip()))
 
+    @staticmethod
+    def _output_file_name(elements, characteristic):
+        return '{}_{}'.format(','.join(elements), characteristic) if len(elements) > 1 else characteristic
+
     def _request_from_server(self):
         if self.available_libs['requests']:
             d = []
             for f in self.formula.split(','):  # to support multiple chemical elements comma-separated list
-                self._get_file_name(formula=f)
-                r = self._get_file_content()
+                self._get_remote_file_name(formula=f)
+                r = self._get_remote_file_content()
                 d.append(r)
             if self.plot or self.save:
-                elements = self.formula.split(',')
-                df, columns = self._to_dataframe(d, elements)
+                df, columns = self._to_dataframe(d, self.elements)
                 if df is not None and columns is not None:
-                    file_name = '{}_{}'.format(self.formula, self.characteristic)
+                    file_name = self._output_file_name(self.elements, self.characteristic)
                     if self.plot:
                         self.plot_data(
                             df=df,
-                            elements=elements,
+                            elements=self.elements,
                             property=self.characteristic,
                             file_name=file_name,
                             x_label=columns[0],
@@ -297,10 +311,10 @@ class DeltaFinder:
 
     def _to_dataframe(self, d, elements):
         """Convert a list of strings, each representing the read data, to a Pandas DataFrame object.
-        
+
         :param d: a list of strings, each representing the read data.
         :param elements: Chemical elements of interest.
-        :return: a tuple of DataFrame and the parsed columns. 
+        :return: a tuple of DataFrame and the parsed columns.
         """
         df = None
         columns = None
@@ -309,7 +323,7 @@ class DeltaFinder:
             c = StringIO(str_data)
             title, columns = str_data.split('\n')[0:2]
             columns = [x.strip() for x in columns.strip().split(',')]
-            columns[1] = '{} {}'.format(columns[1], element)
+            columns[1] = '{} {}'.format(columns[1], element) if len(elements) > 1 else columns[1]
             data = np.loadtxt(c, skiprows=2)
             if df is None:
                 df = pd.DataFrame(data[:, :2], columns=columns[:2])
