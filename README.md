@@ -29,10 +29,12 @@ Usage:
 ```
 $ bnlcrl simulate find-delta -h
 usage: bnlcrl simulate find-delta [-h] [--calc-delta]
-                                  [--characteristic {atten,delta}]
+                                  [--characteristic {transmission,atten,delta}]
                                   [-d DATA_FILE] [--e-max E_MAX]
                                   [--e-min E_MIN] [--e-step E_STEP]
-                                  [-f FORMULA] [-n N_POINTS] [-o OUTFILE] [-p]
+                                  [-f FORMULA] [-n N_POINTS] [-o OUTFILE]
+                                  [--plot] [--precise] [--save]
+                                  [--save-output] [--show-plot] [-t THICKNESS]
                                   [-u] [-v]
                                   energy
 
@@ -48,7 +50,7 @@ Determine the Index of Refraction (delta).
 
     Args:
         calc_delta (bool): a flag to calculate delta analytically.
-        characteristic (str): characteristic to be extracted (``atten`` - attenuation length, ``delta`` - index of refraction).
+        characteristic (str): characteristic to be extracted (``atten`` - attenuation length, ``delta`` - index of refraction, ``transmission`` - filter transmission).
         data_file (str): a *.dat data file in ``bnlcrl/package_data/dat/`` directory with delta values for the material of the CRL (e.g., Be).
         e_max (float): the highest available energy [eV].
         e_min (float): the lowest available energy [eV].
@@ -57,7 +59,12 @@ Determine the Index of Refraction (delta).
         formula (str): material's formula of the interest.
         n_points (int): number of points to get from the server.
         outfile (str): optional output file.
+        plot (bool): a flag to plot the obtained data.
         precise (bool): a flag to find delta within the energy interval +/- 1 eV from the specified energy.
+        save (bool): a flag to save the obtained data.
+        save_output (bool): a flag to save the output dictionary in JSON format.
+        show_plot (bool): a flag to show the show the plot.
+        thickness (float): thickness of the material.
         use_numpy (bool): a flag to use NumPy.
         verbose (bool): a flag to print output to console.
 
@@ -71,7 +78,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --calc-delta          False
-  --characteristic {atten,delta}
+  --characteristic {transmission,atten,delta}
                         'delta'
   -d DATA_FILE, --data-file DATA_FILE
                         ''
@@ -84,7 +91,13 @@ optional arguments:
                         500
   -o OUTFILE, --outfile OUTFILE
                         ''
-  -p, --precise         False
+  --plot                False
+  --precise             False
+  --save                False
+  --save-output         False
+  --show-plot           False
+  -t THICKNESS, --thickness THICKNESS
+                        0.1
   -u, --use-numpy       False
   -v, --verbose         False
 ```
