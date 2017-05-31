@@ -121,7 +121,9 @@ $ bnlcrl simulate simulate-crl -p 6.52 21500 -v
 ```
 
 This library is used on the SMI beamline at NSLS-II:
-![transfocator](docs/transfocator.jpg)
+![transfocator](docs/transfocator.png)
+
+![attenuation filters](docs/attenuation_filters.png)
 
 #### License
 
