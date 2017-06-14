@@ -1,7 +1,6 @@
 from io import StringIO  # StringIO behaves like a file object
 
 import numpy as np
-import pandas as pd
 from matplotlib import pyplot as plt
 
 
@@ -38,6 +37,7 @@ def to_dataframe(d, elements):
     :param elements: Chemical elements of interest.
     :return: a tuple of DataFrame and the parsed columns.
     """
+    import pandas as pd
     df = None
     columns = None
     for i, str_data in enumerate(d):
