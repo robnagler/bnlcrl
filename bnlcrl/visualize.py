@@ -1,11 +1,11 @@
 from io import StringIO  # StringIO behaves like a file object
 
 import numpy as np
-from matplotlib import pyplot as plt
 
 
 def plot_data(df, elements, property, thickness, e_min, e_max, n_points, file_name='data', x_label=None,
               figsize=(10, 6), show_plot=False):
+    from matplotlib import pyplot as plt
     thickness = ', thickness={} [$\mathrm{{\mu}}$m]'.format(thickness) if property == 'transmission' else ''
 
     fig = plt.figure(figsize=figsize)

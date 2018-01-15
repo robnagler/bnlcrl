@@ -1,9 +1,8 @@
-from matplotlib import pyplot as plt
-
 from bnlcrl.delta_finder import DeltaFinder
 
 if __name__ == '__main__':
     import numpy as np
+    from matplotlib import pyplot as plt
 
     step = 1000
     l = np.arange(30, 30000 + 1, step)
