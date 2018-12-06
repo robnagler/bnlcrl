@@ -4,6 +4,8 @@ u"""bnlcrl setup script
 :copyright: Copyright (c) 2016-2018 mrakitin.  All Rights Reserved.
 :license: http://www.apache.org/licenses/LICENSE-2.0.html
 """
+import pykern.pksetup
+
 pykern.pksetup.setup(
     name='bnlcrl',
     author='mrakitin',
