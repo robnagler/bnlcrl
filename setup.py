@@ -15,6 +15,7 @@ pykern.pksetup.setup(
         'matplotlib',
         'numpy',
         'periodictable',
+        'pykern',
     ],
     license='http://www.apache.org/licenses/LICENSE-2.0.html',
     url='https://github.com/mrakitin/bnlcrl',
